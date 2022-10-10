@@ -1,7 +1,7 @@
 # assessment3
 for the third assessment of 636
 
-##在本地写好code，如何上传到github网页？
+## 在本地写好code，如何上传到github网页？
 
 - github destop中选择用VScode打开（respository)
 - 修改此.md文档或其他文档中的code
