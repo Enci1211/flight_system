@@ -1,0 +1,17 @@
+{% extends "home.html" %}
+{% block title %} Airport arrivals and departures {% endblock%}
+
+{% block content %}
+<table>
+    {% for airport in userSelect %}
+    <tr>
+      <td>{{airport[0]}}</td>
+      <td>{{airport[1]}}</td>
+      <td>{{airport[2]}}</td>
+      <td>{{airport[3]}}</td>
+      <td>{{airport[4]}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

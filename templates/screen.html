@@ -1,0 +1,22 @@
+{% extends "home.html" %}
+{% block title %} Airport arrivals and departures {% endblock%}
+
+{% block content %}
+<form action="" method="POST">
+    <label for="select">please select an airport:</label>
+    <select name="select" id="select">
+        <option value="BHE">Blenheim Airport(BHE)</option>
+        <option value="CHC">Christchurch Airport(CHC)</option>
+        <option value="HKK">Hokitika Airport(HKK)</option>
+        <option value="NSN" selected>Nelson Airport(NSN)</option>
+        <option value="PCN">Picton Aerodrome(PCN)</option>
+        <option value="PMR">Palmerston North Airport(PMR)</option>
+        <option value="PPQ">Kapiti Coast Airport(PPQ)</option>
+        <option value="WAG">Whanganui Airport(WAG)</option>
+        <option value="WLG">Wellington Airport(WLG)</option>
+    </select>
+    <input type="submit">
+</form>
+    
+
+{% endblock %}
