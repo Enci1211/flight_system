@@ -1,0 +1,31 @@
+{% extends "home.html" %}
+{% block title %}Administrative system for staff {% endblock%}
+
+{% block content %}
+<form action="{{url_for('admin')}}" method="POST">
+    <label for="staff">please select your name:</label>
+    <select name="staff" id="staff">
+        <option value="1"> Jane Preston</option>
+        <option value="2">Wiremu Aripata</option>
+        <option value="3">Li Chang</option>
+        <option value="5">Jordan Miller</option>
+        <option value="7">Scott Cartwright</option>
+        <option value="8">Sarah Sparrow</option>
+
+    </select>
+    <input type="submit">
+</form>
+
+
+   
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

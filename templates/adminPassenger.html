@@ -1,0 +1,40 @@
+{% extends "home.html" %}
+{% block title %}Administrative system for staff {% endblock%}
+
+{% block content %}
+<div class="passengerdetails" method="POST">
+    <button><a href="/admin/passenger/register">add new passenger</a></button>
+    <h1> ALL passengers details:</h1>
+    <p>{{ jIsMgr }}</p>
+    <table class="table table-striped">
+        <thead method='POST'>
+            <tr>
+                <th scope="col">passengerID</th>
+                <th scope="col">firstname</th>
+                <th scope="col">lastname</th>
+                <th scope="col">emailaddress</th>
+                <th scope="col">phonenumber</th>
+                <th scope="col">passportnumber</th>
+                <th scope="col">dateofbirth</th>
+                <th scope="col">loyaltytier</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            
+            {% for a in userSelect %}
+            <tr>
+                <td><a href="/admin/passenger/details?passengerID={{a[0]}}&staffID={{staffID}}">{{a[0]}}</a></td>
+                <td>{{a[1]}}</td>
+                <td>{{a[2]}}</td>
+                <td>{{a[3]}}</td>
+                <td>{{a[4]}}</td>
+                <td>{{a[5]}}</td>
+                <td>{{a[6]}}</td>
+                <td>{{a[7]}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

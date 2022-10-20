@@ -1,0 +1,72 @@
+{% extends "home.html" %}
+{% block title %} please login to continue {% endblock%}
+
+{% block content %}
+
+<h1>{{ failure }}</h1>
+<form action="{{url_for('login')}}" method="POST">
+    <label for="email">please enter your email to login:</label>
+    <input type="email" required name="email" id="email">
+    <input type="submit">
+    <button><a href="/register">register</a></button>
+    <button><a href="/login">log out</a></button>
+</form>
+
+{% if userEmail: %}<!----如果login ，sth is true，然后显示下面-->
+<h1>passenger details:</h1>
+<table class="table table-striped" method='POST'>
+    <thead>
+        <tr>
+            <th scope="col">passenger-id</th>
+            <th scope="col">firstname</th>
+            <th scope="col">lastname</th>
+            <th scope="col">email</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for a in userInfo %}
+        <tr>
+            <td><a href="/login/edit?passengerID={{passengerID}}">{{a[0]}}</a></td>
+            <td>{{a[1]}}</td>
+            <td>{{a[2]}}</td>
+            <td>{{a[3]}}</td>
+            {% endfor %}
+    </tbody>
+</table>
+
+<h1>passenger booking:</h1>
+<table class="table table-striped" method='POST'>
+    <thead>
+        <tr>
+            <th scope="col">flight-id</th>
+            <th scope="col">flight-num</th>
+            <th scope="col">flight-date</th>
+            <th scope="col">dep-time</th>
+            <th scope="col">dep-airport</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for a in userSelect %}
+        <tr>
+            <td>{{a[0]}}</td>
+            <td>{{a[1]}}</td>
+            <td>{{a[2]}}</td>
+            <td>{{a[3]}}</td>
+            <td>{{a[4]}}</td>
+            <td><a href="/cancel?passengerID={{passengerID}}&flightID={{a[0]}}">cancel</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<button><a href="/add?passengerID={{passengerID}}">add new booking!</a></button>
+
+{% endif %}
+
+
+
+
+
+{% endblock %}

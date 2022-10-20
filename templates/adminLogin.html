@@ -1,0 +1,11 @@
+{% extends "home.html" %}
+{% block title %}Administrative system for staff {% endblock%}
+
+{% block content %}
+
+<h1>Thanks for login!</h1>
+{{ success }}
+<button><a href="/admin/passenger?staffID={{staffID}}">passenger infomation</a></button>
+<button><a href="/admin/flight?staffID={{staffID}}">flight information</a></button>
+
+{% endblock %}

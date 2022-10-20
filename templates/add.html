@@ -1,9 +1,9 @@
 {% extends "home.html" %}
-{% block title %} Airport arrivals and departures {% endblock%}
+{% block title %} please add new booking {% endblock%}
 
 {% block content %}
-<form action="{{url_for('screen')}}" method="POST">
-    <label for="select">please select an airport:</label>
+<form action="{{url_for('add')}}" method="POST">
+    <label for="select">please select departure airport:</label>
     <select name="select" id="select">
         <option value="BHE">Blenheim Airport(BHE)</option>
         <option value="CHC">Christchurch Airport(CHC)</option>
@@ -47,5 +47,4 @@
         {% endfor %}
     </tbody>
 </table>
-
 {% endblock %}

@@ -1,0 +1,60 @@
+{% extends "home.html" %}
+{% block title %}Administrative system for staff {% endblock%}
+
+{% block content %}
+<h1>flight {{flight}} details:</h1>
+<table class="table table-striped">
+    <thead method='POST'>
+        <tr>
+            <th scope="col">flightID</th>
+            <th scope="col">flightnum</th>
+            <th scope="col">weeknum</th>
+            <th scope="col">flightdate</th>
+            <th scope="col">deptime</th>
+            <th scope="col">arrtime</th>
+            <th scope="col">duration</th>
+            <th scope="col">dep-est</th>
+            <th scope="col">arr-est</th>
+            <th scope="col">status</th>
+            <th scope="col">aircraft</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        
+        {% for a in userSelect %}
+        <tr>
+            <td>{{a[0]}}</td>
+            <td>{{a[1]}}</td>
+            <td>{{a[2]}}</td>
+            <td>{{a[3]}}</td>
+            <td>{{a[4]}}</td>
+            <td>{{a[5]}}</td>
+            <td>{{a[6]}}</td>
+            <td>{{a[7]}}</td>
+            <td>{{a[8]}}</td>
+            <td>{{a[9]}}</td>
+            <td>{{a[10]}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h1>all the passenger under this flight {{flight}}:</h1>
+<table class="table table-striped">
+    <thead method='POST'>
+        <tr>
+            <th scope="col">passengerID</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        
+        {% for a in passenger %}
+        <tr>
+            <td><a href="/admin/passenger/details/?passengerID={{passengerID}}&staffID={{staffID}}">{{a[0]}}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

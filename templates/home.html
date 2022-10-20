@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>{% block title %}assessment Air Whakatū flight booking {% endblock %}</title>
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 
     <style>
         body * {
@@ -50,12 +50,12 @@
             height: 104px;
             display: block;
             margin: 0 auto;
-            background: url(/images/logo_blue.jpg);
+            background-image: url(/static/logo_blue.jpg);
 
         }
 
         .logo:hover {
-            background: url(/images/logo_orange.jpg);
+            background: url(/static/logo_orange.jpg);
         }
 
         /*section styles */
@@ -93,6 +93,8 @@
             text-align: center;
         }
     </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -105,7 +107,7 @@
     <section>
         <a href="http://127.0.0.1:5000/screen">Arrivals & Departures screen</a>
         
-        <a href="">Booking page</a>
+        <a href="http://127.0.0.1:5000/login">Booking page</a>
     </section>
     {% endblock %}
     
@@ -118,6 +120,9 @@
             ph. 03 555 1234
         </address>
     </footer>
+
+
+    
 </body>
 
 </html>

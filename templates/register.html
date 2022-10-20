@@ -1,0 +1,50 @@
+{% extends "home.html" %}
+{% block title %} register new passenger {% endblock%}
+
+{% block content %}
+
+
+
+<h1>please fill the form:</h1>
+
+<form action="{{url_for('register')}}" method="POST">
+    <div class="form-row">
+        <!---------fisrtName-->
+        <div class="form-group col-md-6">
+            <label for="firstname">fistname</label>
+            <input type="text" class="form-control" id="firstname" name="firstname" required>
+        </div>
+        <!---------lastName-->
+        <div class="form-group col-md-6">
+            <label for="lastname">lastname</label>
+            <input type="text" class="form-control" id="lastname" name="lastname" required>
+        </div>
+        <!---------emailAddress-->
+        <div class="form-group col-md-6">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="Email" name="email" required>
+        </div>
+        <!---------phoneNum-->
+        <div class="form-group col-md-6">
+            <label for="phonenum">phonen number</label>
+            <input type="text" class="form-control" id="phonenum" placeholder="(nnn) nnn-nnnn" name="phonenum" required>
+        </div>
+        <!---------passportNum-->
+        <div class="form-group col-md-6">
+            <label for="passportnum">passport number</label>
+            <input type="text" class="form-control" id="passportnum" name="passportnum" required>
+        </div>
+        <!---------dateBirth-->
+        <div class="form-group col-md-6">
+            <label for="datebirth">date of birth</label>
+            <input type="date" class="form-control" id="datebirth" name="datebirth" required>
+        </div>
+
+    </div>
+    
+    <input type="submit" class="btn btn-primary">
+</form>
+
+
+
+{% endblock %}
