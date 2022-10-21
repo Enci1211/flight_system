@@ -331,7 +331,7 @@ def adminDetails():
     cur2.execute(dbsql2,parameter2)
     dbOutput2 = cur2.fetchall()
     
-    return render_template("adminDetails.html", passenger = dbOutput, passengerBooking = dbOutput2, staffID = staffID)
+    return render_template("adminDetails.html", passenger = dbOutput, passengerBooking = dbOutput2, staffID = staffID,passengerID= passengerID)
                           
 
 @app.route("/admin/passenger/edit",methods = ['POST','GET'])    #和/login/edit一模一样！！！！目前加载失败！！
@@ -339,7 +339,7 @@ def adminEdit():
     passengerID = request.args.get("passengerID")
     staffID = request.args.get("staffID")
     if request.method == 'POST':
-        userDetails = request.form
+        userDetails = request.form    #fetch the new details of this passenger
         print(userDetails)
         
         firstName = userDetails['firstname']
@@ -349,14 +349,17 @@ def adminEdit():
         passportNum = userDetails['passportnum']
         dateBirth = userDetails['datebirth']
         
-        cur = getCursor()
-        dbsql = """INSERT INTO passenger(FirstName,LastName,EmailAddress,PhoneNumber,PassportNumber,DateOfBirth,LoyaltyTier)
-                   VALUES(%s,%s,%s,%s,%s,%s,'1');"""
-        parameters = (firstName,lastName,emailAddress,phoneNum,passportNum,dateBirth)
+        cur = getCursor()   #update the new details into the db为什么没成功？？datebirth要从str变成date？？？？？？？？？
+        dbsql = """update passenger
+                   set firstname=%s,lastname=%s,emailaddress=%s,phonenumber=%s,passportnumber=%s,dateofbirth=%s
+                   where passengerid = %s;"""
+        parameters = (firstName,lastName,emailAddress,phoneNum,passportNum,dateBirth,passengerID)
         cur.execute(dbsql,parameters) 
+        connection.commit()
         
- #       return render_template("edit.html",success_edit = "successfully edited the passenger info!")
-        return render_template("adminEdit.html")
+         
+ #       怎么返回前页？？？？？？？？？？？？？？？？？加载更新后的用户信息
+        return redirect(url_for('adminDetails',passengerID=passengerID,staffID=staffID))
     
     
     else: 
@@ -384,6 +387,16 @@ def adminEdit():
                      
 @app.route("/admin/passenger/cancel/")
 def adminCancel():
+    flightID = request.args.get("flightID")
+    passengerID = request.args.get("passengerID")
+    
+    cur = getCursor() #delete the booking 为什么不能成功？？？？？！！！！
+    sql = ("""DELETE FROM passengerflight
+              where flightid = %s and passengerid = %s;""")
+    paremeters =(int(flightID),int(passengerID))
+    cur.execute(sql,paremeters)
+    connection.commit()
+    
     return render_template("adminCancel.html")
 
     

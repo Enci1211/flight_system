@@ -1,9 +1,9 @@
 {% extends "home.html" %}
-{% block title %} please login to continue {% endblock%}
+{% block title %} update new passenger info{% endblock%}
 
 {% block content %}
-<h1>{{ success_edit }}</h1>
-<form action="{{url_for('edit')}}" method="POST">
+
+<form action="{{url_for('adminEdit')}}" method="POST">
     <div class="form-row">
         <!---------fisrtName-->
         <div class="form-group col-md-6">

@@ -2,6 +2,8 @@
 {% block title %}Administrative system for staff {% endblock%}
 
 {% block content %}
+
+<h1>{{ success_edit }}</h1>
 <h1>passenger infomation:</h1>
 
 <table class="table table-striped">
@@ -22,7 +24,7 @@
         
         {% for a in passenger %}
         <tr>
-            <td><a href="/admnin/passenger/edit">{{a[0]}}</a></td>
+            <td><a href="/admin/passenger/edit?passengerID={{passengerID}}&staffID={{staffID}}">{{a[0]}}</a></td>
             <td>{{a[1]}}</td>
             <td>{{a[2]}}</td>
             <td>{{a[3]}}</td>
@@ -58,7 +60,7 @@
             <td>{{a[3]}}</td>
             <td>{{a[4]}}</td>
             <td>{{a[5]}}</td>
-            <td><a href="/admin/cancel?passengerID={{a[0]}}&staffID={{staffID}}&fligthID={{flightID}}">cancel</a></td>
+            <td><a href="/admin/cancel?passengerID={{a[0]}}&staffID={{staffID}}&fligthID={{a[3]}}">cancel</a></td>
         </tr>
         {% endfor %}
     </tbody>
