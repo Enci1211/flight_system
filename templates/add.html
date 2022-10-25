@@ -18,24 +18,27 @@
     <input type="submit">
 </form>
 
+{% if userSelect %}
 <table class="table table-striped">
-    <thead method = 'POST'>
+    <thead method='POST'>
         <tr>
+            <th scope="col">Flight-id</th>
             <th scope="col">Flight-num</th>
             <th scope="col">dep-date</th>
-            <th scope="col">dep-code</th>
             <th scope="col">dep-airport</th>
             <th scope="col">dep-time</th>
-            <th scope="col">arr-code</th>
             <th scope="col">arr-airport</th>
             <th scope="col">arr-time</th>
+            <th scope="col">seat-available</th>
+            <th scope="col">flight-status</th>
+            <th scope="col">description</th>
         </tr>
     </thead>
 
     <tbody>
         {% for a in userSelect %}
         <tr>
-            <td>{{a[0]}}</td>
+            <td><a href="/add/success?passengerID={{passengerID}}&flightID={{a[0]}}">{{a[0]}}</a></td>
             <td>{{a[1]}}</td>
             <td>{{a[2]}}</td>
             <td>{{a[3]}}</td>
@@ -43,8 +46,14 @@
             <td>{{a[5]}}</td>
             <td>{{a[6]}}</td>
             <td>{{a[7]}}</td>
+            <td>{{a[8]}}</td>
+            <td>{{a[9]}}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<button><a href="/add?passengerID={{passengerID}}">back to previous page!</a></button>
+{% endif %}
+
 {% endblock %}

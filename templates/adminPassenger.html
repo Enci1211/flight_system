@@ -4,6 +4,11 @@
 {% block content %}
 <div class="passengerdetails" method="POST">
     <button><a href="/admin/passenger/register">add new passenger</a></button>
+    <form action="{{url_for('adminPassenger')}}" method="POST">
+        <label for="search">please enter the last name to search passenger:</label>
+        <input type="text" id="search" name="search">
+        <input type="submit">
+    </form>
     <h1> ALL passengers details:</h1>
     <p>{{ jIsMgr }}</p>
     <table class="table table-striped">

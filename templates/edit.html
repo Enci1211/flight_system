@@ -6,6 +6,11 @@
 <form action="{{url_for('edit')}}" method="POST">
     <div class="form-row">
         <!---------fisrtName-->
+
+
+        <input type="hidden" value="{{passengerID}}" id="passengerID" name="passengerID" required>
+
+        <!---------fisrtName-->
         <div class="form-group col-md-6">
             <label for="firstname">fistname is {{firstname}},change to</label>
             <input type="text" class="form-control" id="firstname" name="firstname" required>
@@ -37,7 +42,7 @@
         </div>
 
     </div>
-    
+
     <input type="submit" class="btn btn-primary">
 </form>
 

@@ -4,21 +4,23 @@
 {% block content %}
 <div class="flightdetails" method="POST">
     <h1>flight details:</h1>
-    <p>{{ jIsMgr }}</p>
+    {% if isManager %}
+       <button><a href="/admin/flight/add/">add new flight!</a></button>
+    {% endif %}
     <table class="table table-striped">
         <thead method='POST'>
             <tr>
                 <th scope="col">flightID</th>
                 <th scope="col">flightnum</th>
-                <th scope="col">weeknum</th>
                 <th scope="col">flightdate</th>
-                <th scope="col">deptime</th>
-                <th scope="col">arrtime</th>
-                <th scope="col">duration</th>
-                <th scope="col">dep-est</th>
-                <th scope="col">arr-est</th>
-                <th scope="col">status</th>
+                <th scope="col">dep-airport</th>
+                <th scope="col">dep-time</th>
+                <th scope="col">arr-airport</th>
+                <th scope="col">arr-time</th>
                 <th scope="col">aircraft</th>
+                <th scope="col">seat-booked</th>
+                <th scope="col">seat-available</th>
+                <th scope="col">flight-status</th>
             </tr>
         </thead>
 

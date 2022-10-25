@@ -8,20 +8,20 @@
         <tr>
             <th scope="col">flightID</th>
             <th scope="col">flightnum</th>
-            <th scope="col">weeknum</th>
             <th scope="col">flightdate</th>
-            <th scope="col">deptime</th>
-            <th scope="col">arrtime</th>
-            <th scope="col">duration</th>
-            <th scope="col">dep-est</th>
-            <th scope="col">arr-est</th>
-            <th scope="col">status</th>
+            <th scope="col">dep-airport</th>
+            <th scope="col">dep-time</th>
+            <th scope="col">arr-airport</th>
+            <th scope="col">arr-time</th>
             <th scope="col">aircraft</th>
+            <th scope="col">seat-booked</th>
+            <th scope="col">seat-available</th>
+            <th scope="col">flight-status</th>
         </tr>
     </thead>
 
     <tbody>
-        
+
         {% for a in userSelect %}
         <tr>
             <td>{{a[0]}}</td>
@@ -45,14 +45,28 @@
     <thead method='POST'>
         <tr>
             <th scope="col">passengerID</th>
+            <th scope="col">firstname</th>
+            <th scope="col">lastname</th>
+            <th scope="col">emailaddress</th>
+            <th scope="col">phonenumber</th>
+            <th scope="col">passportnumber</th>
+            <th scope="col">dateofbirth</th>
+            <th scope="col">loyaltytier</th>
         </tr>
     </thead>
 
     <tbody>
-        
+
         {% for a in passenger %}
         <tr>
             <td><a href="/admin/passenger/details/?passengerID={{passengerID}}&staffID={{staffID}}">{{a[0]}}</a></td>
+            <td>{{a[1]}}</td>
+            <td>{{a[2]}}</td>
+            <td>{{a[3]}}</td>
+            <td>{{a[4]}}</td>
+            <td>{{a[5]}}</td>
+            <td>{{a[6]}}</td>
+            <td>{{a[7]}}</td>
         </tr>
         {% endfor %}
     </tbody>

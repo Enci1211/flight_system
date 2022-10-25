@@ -3,18 +3,11 @@
 
 {% block content %}
 
-<h1>{{ failure }}</h1>
-<form action="{{url_for('login')}}" method="POST">
-    <label for="email">please enter your email to login:</label>
-    <input type="email" required name="email" id="email">
-    <input type="submit">
-    <button><a href="/register">register</a></button>
-    <button><a href="/login">log out</a></button>
-</form>
 
-<!----------{% if userEmail in emailList: %}--------------
---如果用户输入的email 是数据库里的，然后显示下面，但是失败了？？？？？？？-->
-<h1>passenger details:</h1>
+
+{% if userEmail in emailList %}
+
+<h1>passenger details(click passenger-id to edit the passenger infomation:</h1>
 <table class="table table-striped" method='POST'>
     <thead>
         <tr>
@@ -35,6 +28,7 @@
             {% endfor %}
     </tbody>
 </table>
+
 
 <h1>passenger booking:</h1>
 <table class="table table-striped" method='POST'>
@@ -64,9 +58,20 @@
 
 <button><a href="/add?passengerID={{passengerID}}">add new booking!</a></button>
 
-<!-----{% endif %}------>
 
+{% else %}
+<h1>{{ failure }}</h1>
+<h1>{{ success_edit }}</h1>
+<h1>{{ cancel }} </h1>
+<form action="{{url_for('login')}}" method="POST">
+    <label for="email">please enter your email to login:</label>
+    <input type="email" required name="email" id="email">
+    <input type="submit">
+    <button><a href="/register">register</a></button>
+    <button><a href="/login">log out</a></button>
+</form>
 
+{% endif %}
 
 
 

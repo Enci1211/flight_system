@@ -1,0 +1,62 @@
+{% extends "home.html" %}
+{% block title %}Administrative system for staff {% endblock%}
+
+{% block content %}
+<form action="{{url_for('adminFlightAdd')}}" method="POST">
+    <div class="form-row">
+        <!---------flightnum-->
+        <div class="form-group col-md-6">
+            <label for="flightnum">flightnum</label>
+            <input type="text" class="form-control" id="flightnum" name="flightnum" required>
+        </div>
+        <!---------weeknum-->
+        <div class="form-group col-md-6">
+            <label for="weeknum">weeknum</label>
+            <input type="number" class="form-control" id="weeknum" name="weeknum" required>
+        </div>
+        <!---------flightdate-->
+        <div class="form-group col-md-6">
+            <label for="flightdate">flightdate</label>
+            <input type="date" class="form-control" id="flightdate" name="flightdate" required>
+        </div>
+        <!---------deptime-->
+        <div class="form-group col-md-6">
+            <label for="deptime">deptime</label>
+            <input type="time" class="form-control" id="deptime" name="deptime" required>
+        </div>
+
+        <!---------arrtime-->
+        <div class="form-group col-md-6">
+            <label for="arrtime">arrtime</label>
+            <input type="time" class="form-control" id="arrtime" name="arrtime" required>
+        </div>
+
+        
+        <!---------aircraft-->
+        <div class="form-group col-md-6">
+            <label for="aircraft">aircraft</label>
+            <select name="aircraft" id="aircraft" required>
+                {% for r in regMark %}
+                <option value="{{r[0]}}">{{r[0]}}</option>
+                <option value="{{r[0]}}">{{r[1]}}</option>
+                <option value="{{r[0]}}">{{r[2]}}</option>
+                <option value="{{r[0]}}">{{r[3]}}</option>
+                <option value="{{r[0]}}">{{r[4]}}</option>
+                <option value="{{r[0]}}">{{r[5]}}</option>
+                <option value="{{r[0]}}">{{r[6]}}</option>
+                <option value="{{r[0]}}">{{r[7]}}</option>
+                <option value="{{r[0]}}">{{r[8]}}</option>
+                <option value="{{r[0]}}">{{r[9]}}</option>
+
+                {% endfor %}
+            </select>
+        </div>
+
+        
+
+    </div>
+
+    <input type="submit" class="btn btn-primary">
+</form>
+
+{% endblock %}
