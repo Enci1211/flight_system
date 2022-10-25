@@ -82,12 +82,21 @@ passenger information.
     - ### @app.route("/admin/passenger/cancel/")
       this page is linked from the /admin/passenger/details/ page ，if staff click the cancel button there, they will be here.\
        in this page, it will fetch the specific flightID and specific passengerID from the url, and , remove the passenger from the flight,and it will load the adminCancel.html file which remind the staff the booking had been cancel and they can back to /admin/ page with a link.
-    - ### @app.route("/admin/flight/")
+    - ### @app.route("/admin/flight/")  and def CheckManager(staffID)
       this page linked from /admin/ page and will load adminFlight.html file. There is a table display flights info.
       The flightid number is a link, which links to /admin/flight/details.\
+      which is the most important here is there are two buttons available to just manager, that because there is a function called CheckManager(staffID), it fetches the value on isManager column of staff table in database, it the staffid user enter, has the isManager value with "1", then the CheckManager(staffID) will be true.\
+      so after the staff login, we fetch the staffID from url under the page /admin/flight/ ,and check if this staff is a manager, and in the html file, only manager can see two buttons.\
+      one button is called 'add new flight', links to /admin/flight/add/\
+      another button is called 'duplicate new week' ,links to /admin/flight/duplicate/\
     - ### @app.route("/admin/flight/details/")
       this page will load adminFlightDetail.html file which shows the flight manifest.\
       In this page, there are two tables ,the first table shows the specific flight details, another table shows the passengers ids under this flight, if staff clicks the passenger ID number, it will link to /admin/passenger/details/ page which staff can change the passenger details just samse as above.
+    - ### @app.route("/admin/flight/add/")
+      this page comes from the /admin/flight/ page ,and will load adminFlightAdd.html file firstly.\
+      in this page ,there is a form to fill, and after submit(request.method == 'POST'),it will fetch the value and insert it into database
+    - ### @app.route("/admin/flight/duplicate/")
+      this page comes from the /admin/flight/ page ,and will load back to admin page, when the query goes well, it will use a insert query to duplicate flights info for new week by only manager.
       
 
       

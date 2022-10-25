@@ -26,6 +26,7 @@
             <td>{{a[2]}}</td>
             <td>{{a[3]}}</td>
             {% endfor %}
+        </tr>
     </tbody>
 </table>
 
@@ -59,19 +60,25 @@
 <button><a href="/add?passengerID={{passengerID}}">add new booking!</a></button>
 
 
+
 {% else %}
 <h1>{{ failure }}</h1>
 <h1>{{ success_edit }}</h1>
 <h1>{{ cancel }} </h1>
+<h1>{{ success }}</h1>
+<h1>{{ register }}</h1>
 <form action="{{url_for('login')}}" method="POST">
     <label for="email">please enter your email to login:</label>
-    <input type="email" required name="email" id="email">
+    <input type="email" required name="email" id="email" >
     <input type="submit">
     <button><a href="/register">register</a></button>
     <button><a href="/login">log out</a></button>
 </form>
-
 {% endif %}
+
+
+
+
 
 
 

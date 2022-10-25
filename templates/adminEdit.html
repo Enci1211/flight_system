@@ -5,6 +5,7 @@
 
 <form action="{{url_for('adminEdit')}}" method="POST">
     <div class="form-row">
+        <input type="hidden" value="{{passengerID}}" id="passengerID" name="passengerID" required>
         <!---------fisrtName-->
         <div class="form-group col-md-6">
             <label for="firstname">fistname is {{firstname}},change to</label>

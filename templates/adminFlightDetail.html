@@ -2,43 +2,148 @@
 {% block title %}Administrative system for staff {% endblock%}
 
 {% block content %}
+
+
 <h1>flight {{flight}} details:</h1>
-<table class="table table-striped">
-    <thead method='POST'>
-        <tr>
-            <th scope="col">flightID</th>
-            <th scope="col">flightnum</th>
-            <th scope="col">flightdate</th>
-            <th scope="col">dep-airport</th>
-            <th scope="col">dep-time</th>
-            <th scope="col">arr-airport</th>
-            <th scope="col">arr-time</th>
-            <th scope="col">aircraft</th>
-            <th scope="col">seat-booked</th>
-            <th scope="col">seat-available</th>
-            <th scope="col">flight-status</th>
-        </tr>
-    </thead>
 
-    <tbody>
+{% if isManager %}
+<form action="{{url_for('flightDetail')}}" method="POST">
+    <input type="hidden" value="{{staffID}}" name="staffID" id="staffID">
+    <input type="hidden" value="{{flightID}}" name="flightID" id="flightID">
+    <table class="table table-striped">
+        <thead method='POST'>
+            <tr>
+                <th scope="col">flightID</th>
+                <th scope="col">flightnum</th>
+                <th scope="col">flightdate</th>
+                <th scope="col">dep-airport</th>
+                <th scope="col">dep-time</th>
+                <th scope="col">arr-airport</th>
+                <th scope="col">arr-time</th>
+                <th scope="col">aircraft</th>
+                <th scope="col">seat-booked</th>
+                <th scope="col">seat-available</th>
+                <th scope="col">flight-status</th>
+            </tr>
+        </thead>
 
-        {% for a in userSelect %}
-        <tr>
-            <td>{{a[0]}}</td>
-            <td>{{a[1]}}</td>
-            <td>{{a[2]}}</td>
-            <td>{{a[3]}}</td>
-            <td>{{a[4]}}</td>
-            <td>{{a[5]}}</td>
-            <td>{{a[6]}}</td>
-            <td>{{a[7]}}</td>
-            <td>{{a[8]}}</td>
-            <td>{{a[9]}}</td>
-            <td>{{a[10]}}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        <tbody>
+
+            {% for a in userSelect %}
+            <tr>
+                <td>{{a[0]}}</td>
+                <td>{{a[1]}}</td>
+                <td>{{a[2]}}</td>
+                <td>{{a[3]}}</td>
+                <td>
+                    <input type="time" id="deptime" name="deptime">
+                    <label for="deptime">{{a[4]}}</label>
+                </td>
+                <td>{{a[5]}}</td>
+                <td>
+                    <input type="time" id="arrtime" name="arrtime">
+                    <label for="arrtime">{{a[4]}}</label>
+                </td>
+                <td>
+                    
+                    <select name="regMark" id="regMark">
+                    
+                        <option value="{{a[7]}}">{{a[7]}}</option>
+                     {% for r in regMark %}
+                        <option value="{{r[0]}}">{{r[0]}}</option>
+                        <option value="{{r[1]}}">{{r[1]}}</option>
+                        <option value="{{r[2]}}">{{r[2]}}</option>
+                        <option value="{{r[3]}}">{{r[3]}}</option>
+                        <option value="{{r[4]}}">{{r[4]}}</option>
+                        <option value="{{r[5]}}">{{r[5]}}</option>
+                        <option value="{{r[6]}}">{{r[6]}}</option>
+                        <option value="{{r[7]}}">{{r[7]}}</option>
+                        <option value="{{r[8]}}">{{r[8]}}</option>
+                        <option value="{{r[9]}}">{{r[9]}}</option>
+                    {% endfor %}
+
+                    </select>
+                      
+                </td>
+                <td>{{a[8]}}</td>
+                <td>{{a[9]}}</td>
+                <td>
+                    <select name="status" id="status">
+                        <option value="{{a[10]}}">{{a[10]}}</option>
+                        <option value="Canceled">Canceled</option>
+                        <option value="Delayed">Delayed</option>
+                        <option value="Departed">Departed</option>
+                        <option value="Landed">Landed</option>
+                        <option value="On time">On time</option>
+                    </select>
+                    
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <input type="submit">
+</form>
+
+{% else %}
+<form action="{{url_for('flightDetail')}}" method="POST">
+    <input type="hidden" value="{{staffID}}" name="staffID" id="staffID">
+    <input type="hidden" value="{{flightID}}" name="flightID" id="flightID">
+    <table class="table table-striped">
+        <thead method='POST'>
+            <tr>
+                <th scope="col">flightID</th>
+                <th scope="col">flightnum</th>
+                <th scope="col">flightdate</th>
+                <th scope="col">dep-airport</th>
+                <th scope="col">dep-time</th>
+                <th scope="col">arr-airport</th>
+                <th scope="col">arr-time</th>
+                <th scope="col">aircraft</th>
+                <th scope="col">seat-booked</th>
+                <th scope="col">seat-available</th>
+                <th scope="col">flight-status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for a in userSelect %}
+            <tr>
+                <td>{{a[0]}}</td>
+                <td>{{a[1]}}</td>
+                <td>{{a[2]}}</td>
+                <td>{{a[3]}}</td>
+                <td>
+                    <input type="time" id="deptime" name="deptime">
+                    <label for="deptime">{{a[4]}}</label>
+                </td>
+                <td>{{a[5]}}</td>
+                <td>
+                    <input type="time" id="arrtime" name="arrtime">
+                    <label for="arrtime">{{a[4]}}</label>
+                </td>
+                <td>{{a[7]}}</td>
+                <td>{{a[8]}}</td>
+                <td>{{a[9]}}</td>
+                <td>
+                    <select name="status" id="status">
+                        <option value="{{a[10]}}">{{a[10]}}</option>
+                        <option value="">Canceled</option>
+                        <option value="">Delayed</option>
+                        <option value="">Departed</option>
+                        <option value="">Landed</option>
+                        <option value="">On time</option>
+                    </select>
+                    
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <input type="submit">
+</form>
+{% endif %}
 
 <h1>all the passenger under this flight {{flight}}:</h1>
 <table class="table table-striped">
