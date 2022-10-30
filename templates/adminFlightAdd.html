@@ -2,12 +2,25 @@
 {% block title %}Administrative system for staff {% endblock%}
 
 {% block content %}
+<h1>please fill the form:</h1>
+
 <form action="{{url_for('adminFlightAdd')}}" method="POST">
     <div class="form-row">
         <!---------flightnum-->
         <div class="form-group col-md-6">
-            <label for="flightnum">flightnum</label>
-            <input type="text" class="form-control" id="flightnum" name="flightnum" required>
+            <label for="flightnum">flight-num</label>
+            <select name="flightnum" id="flightnum" class="form-control" required>
+                {% for f in flightNum %}
+                <option value="{{f[0]}}">{{r[0]}}</option>
+                <option value="{{f[1]}}">{{r[1]}}</option>
+                <option value="{{f[2]}}">{{r[2]}}</option>
+                <option value="{{f[3]}}">{{r[3]}}</option>
+                <option value="{{f[4]}}">{{r[4]}}</option>
+                <option value="{{f[5]}}">{{r[5]}}</option>
+                <option value="{{f[6]}}">{{r[6]}}</option>
+                <option value="{{f[7]}}">{{r[7]}}</option>
+                {% endfor %}
+            </select>
         </div>
         <!---------weeknum-->
         <div class="form-group col-md-6">
@@ -31,28 +44,28 @@
             <input type="time" class="form-control" id="arrtime" name="arrtime" required>
         </div>
 
-        
+
         <!---------aircraft-->
         <div class="form-group col-md-6">
             <label for="aircraft">aircraft</label>
-            <select name="aircraft" id="aircraft" required>
+            <select name="aircraft" id="aircraft" class="form-control" required>
                 {% for r in regMark %}
                 <option value="{{r[0]}}">{{r[0]}}</option>
-                <option value="{{r[0]}}">{{r[1]}}</option>
-                <option value="{{r[0]}}">{{r[2]}}</option>
-                <option value="{{r[0]}}">{{r[3]}}</option>
-                <option value="{{r[0]}}">{{r[4]}}</option>
-                <option value="{{r[0]}}">{{r[5]}}</option>
-                <option value="{{r[0]}}">{{r[6]}}</option>
-                <option value="{{r[0]}}">{{r[7]}}</option>
-                <option value="{{r[0]}}">{{r[8]}}</option>
-                <option value="{{r[0]}}">{{r[9]}}</option>
+                <option value="{{r[1]}}">{{r[1]}}</option>
+                <option value="{{r[2]}}">{{r[2]}}</option>
+                <option value="{{r[3]}}">{{r[3]}}</option>
+                <option value="{{r[4]}}">{{r[4]}}</option>
+                <option value="{{r[5]}}">{{r[5]}}</option>
+                <option value="{{r[6]}}">{{r[6]}}</option>
+                <option value="{{r[7]}}">{{r[7]}}</option>
+                <option value="{{r[8]}}">{{r[8]}}</option>
+                <option value="{{r[9]}}">{{r[9]}}</option>
 
                 {% endfor %}
             </select>
         </div>
 
-        
+
 
     </div>
 

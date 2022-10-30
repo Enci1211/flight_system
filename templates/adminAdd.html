@@ -2,7 +2,7 @@
 {% block title %} please add new booking {% endblock%}
 
 {% block content %}
-<form action="{{url_for('add')}}" method="POST">
+<form action="{{url_for('adminAdd')}}" method="POST">
     <input type="hidden" value="{{passengerID}}" id="passengerID" name="passengerID">
     <label for="select">please select departure airport:</label>
     <select name="select" id="select">
@@ -39,7 +39,7 @@
     <tbody>
         {% for a in userSelect %}
         <tr>
-            <td><a href="/add/success?passengerID={{passengerID}}&flightID={{a[0]}}">{{a[0]}}</a></td>
+            <td><a href="/admin/passenger/add/success?passengerID={{passengerID}}&flightID={{a[0]}}">{{a[0]}}</a></td>
             <td>{{a[1]}}</td>
             <td>{{a[2]}}</td>
             <td>{{a[3]}}</td>
@@ -54,7 +54,7 @@
     </tbody>
 </table>
 
-<button><a href="/add?passengerID={{passengerID}}">back to previous page!</a></button>
+<button><a href="/admin/passenger/add?passengerID={{passengerID}}">back to previous page!</a></button>
 {% endif %}
 
 {% endblock %}

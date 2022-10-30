@@ -117,7 +117,7 @@ def login():
             dbOutput = cur.fetchall()  
                  
             cur2 = getCursor()#fetch the details of all the bookings this user(with this email above) had made            
-            dbsql2=("""SELECT f.flightid, f.flightnum, f.flightdate,f.deptime,a.airportname as depairport
+            dbsql2=("""SELECT p.passengerid, f.flightid, f.flightnum, f.flightdate,f.deptime,a.airportname as depairport
                             from passenger as p
                             join passengerflight as pf
                             on pf.PassengerID = p.PassengerID
@@ -151,10 +151,13 @@ def login():
     return render_template("login.html")
 
 
-@app.route("/cancel/")
+@app.route("/cancel/")#cancel the booking
 def cancel():
     flightID = request.args.get("flightID")
     passengerID = request.args.get("passengerID")
+
+    print(flightID)
+    print(passengerID)
     
     cur = getCursor()
     sql = ("""DELETE FROM passengerflight
@@ -162,6 +165,8 @@ def cancel():
     parameters=(flightID, passengerID)
     cur.execute(sql,parameters)
     connection.commit()
+
+    print(cur.statement)
     
     return render_template('login.html',cancel= "this booking had been canceled, please login again to check!")
 
@@ -327,7 +332,7 @@ def CheckManager(staffID):
         return False
     
 
-@app.route("/admin/", methods = ['POST','GET']) #home page for staff to login目前还没有区分是不是manager！！！！！！！！！！
+@app.route("/admin/", methods = ['POST','GET']) 
 def admin():   
     if request.method == 'POST':
         
@@ -428,7 +433,7 @@ def adminAdd():
     if request.method == 'POST':
         date_7after = current_date + timedelta(days=7) 
         userSelect = request.form['select']
-        passengerID = userSelect['passengerID']
+        passengerID = request.form['passengerID']
         print(userSelect)   
         print(passengerID)
         cur = getCursor()   #User selects departure airport. All flights from that airport are displayed for the selected date and 7 days after that date
@@ -455,14 +460,34 @@ def adminAdd():
         parameters = (userSelect, current_date,date_7after)
         cur.execute(dbsql,parameters) 
         dbOutput = cur.fetchall()
-        return render_template("add.html",userSelect = dbOutput,passengerID = passengerID) 
+        return render_template("adminAdd.html",userSelect = dbOutput,passengerID = passengerID) 
     else:
         passengerID = request.args.get("passengerID")
-        return render_template("add.html",passengerID=passengerID)  
+        return render_template("adminAdd.html",passengerID=passengerID)  
 
 @app.route("/admin/passenger/add/success/") 
 def adminAddSuc():
-    return render_template("admin.html",success = "new booking have been added to the passenger!") 
+    passengerID = request.args.get("passengerID") 
+    flightID = request.args.get("flightID") 
+
+    cur = getCursor()
+    dbsql = ("""select * from passengerflight
+                where flightid = %s and passengerid = %s;""")
+    parameters=(flightID,passengerID)
+    cur.execute(dbsql,parameters)
+    dbOutput = cur.fetchall()
+    print(dbOutput)
+
+    if len(dbOutput) == 0:
+
+       cur = getCursor()
+       dbsql = """INSERT INTO passengerflight(flightid,passengerid)
+                   VALUES(%s,%s);"""
+       parameters = (flightID,passengerID)
+       cur.execute(dbsql,parameters)
+
+       return render_template("admin.html",success = "new booking have been added to the passenger!") 
+    return render_template("admin.html",success = "the booking is exist!") 
 
 @app.route("/admin/passenger/edit/",methods = ['POST','GET'])
 def adminEdit():
@@ -515,10 +540,13 @@ def adminEdit():
                            dateofbirth= dateofbirth,passengerID=passengerID)
                 
                      
-@app.route("/admin/passenger/cancel/")#上面用户的cancel成功了，测试为什么这里不能成功？？？？？！！！！
+@app.route("/admin/passenger/cancel/")
 def adminCancel():
     flightID = request.args.get("flightID")
     passengerID = request.args.get("passengerID")
+
+    print(passengerID)
+    print(flightID)
     
     cur = getCursor() #delete the booking 
     sql = ("""DELETE FROM passengerflight
@@ -526,11 +554,12 @@ def adminCancel():
     paremeters =(flightID,passengerID)
     cur.execute(sql,paremeters)
     connection.commit()
+
+    print(cur.statement)
     
     return render_template("admin.html",cancel = "the booking have been canceled")
 
-    
-    
+   
     
 @app.route("/admin/flight/", methods = ['POST','GET']) #staff can get all the flights info in a talbe in this page,only manager can add flights in this page
 def adminFlight():  
@@ -567,18 +596,31 @@ def adminFlight():
     return render_template("adminFlight.html", userSelect = dbOutput, staffID = staffID, isManager=isManager)
     
     
-@app.route("/admin/flight/details/", methods = ['POST','GET'])   #update the new details into the db 没有成功！！！！也没有报错！！！！！！！
+@app.route("/admin/flight/details/", methods = ['POST','GET'])   #update the new details into the db 
 def flightDetail():
     if request.method == 'POST':  #if the staff change the flight info
         flightDetails=request.form
         staffID = flightDetails['staffID']
         flightID = flightDetails['flightID']
+
+        print(staffID)
+        print(flightID)
+
         isManager = CheckManager(staffID)
         if isManager:
            deptime = flightDetails['deptime']
            arrtime = flightDetails['arrtime']
            regMark = flightDetails['regMark']
            status = flightDetails['status']
+           flightID = flightDetails['flightID']
+
+           print(flightID)
+           print(deptime)
+           print(arrtime)
+           print(regMark)
+           print(status)
+           
+
 
            cur = getCursor() 
            dbsql = """update flight
@@ -588,11 +630,10 @@ def flightDetail():
            cur.execute(dbsql,parameters) 
            connection.commit()
 
+           print(cur.statement)
+
            return render_template("admin.html",edit_flight="flight details had been changed!")
-
         else:
-            
-
             deptime = flightDetails['deptime']
             arrtime = flightDetails['arrtime']
             status = flightDetails['status']
@@ -604,23 +645,19 @@ def flightDetail():
             parameters = (deptime,arrtime,status,flightID)
             cur.execute(dbsql,parameters) 
             connection.commit()
-            return render_template("admin.html",edit_flight="flight details had been changed!")
-       
-        
+            return render_template("admin.html",edit_flight="flight details had been changed!")        
     else:
-
        staffID = request.args.get("staffID")
        flightID = request.args.get("flightID")
-       isManager = CheckManager(staffID)
-    
-  
+       isManager = CheckManager(staffID)      
        cur3 = getCursor()
        cur3.execute("""select regmark from aircraft;""") #fetch all the regmark for manager to choose
        dbOutput3=cur3.fetchall()
 
        cur = getCursor()   #fetch the details of this specific flight
        sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
+                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, 
+                   ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
                    FROM flight AS f
                    LEFT JOIN route AS r
                    ON f.FlightNum = r.FlightNum
@@ -657,10 +694,11 @@ def flightDetail():
     
        passengerID = dbOutput2[0][0]
     
-       return render_template("adminFlightDetail.html",flight=flightID,staffID=staffID,passengerID=passengerID, userSelect = dbOutput, passenger = dbOutput2,isManager=isManager,regMark=dbOutput3)
+       return render_template("adminFlightDetail.html",flightID=flightID,staffID=staffID,passengerID=passengerID,
+        userSelect = dbOutput, passenger = dbOutput2,isManager=isManager,regMark=dbOutput3)
 
 
-@app.route("/admin/flight/add/")#insert these values into database flight table还没在readme写！！！为什么没成功？？？？？？？？？???
+@app.route("/admin/flight/add/",methods = ['POST','GET'])#insert these values into database flight table 为什么没成功？？？？？？？？？???
 def adminFlightAdd():
     if request.method == 'POST':
         newFlight = request.form
@@ -671,18 +709,22 @@ def adminFlightAdd():
         flightdate = newFlight['flightdate']
         deptime = newFlight['deptime']
         arrtime = newFlight['arrtime']
-        duration = arrtime -deptime
+       # duration = arrtime -deptime
         depEstAct = newFlight['deptime']
         arrEstAct = newFlight['arrtime']
         flightstatus = "On time"
         aircraft = newFlight['aircraft']
+
+        print(flightnum,weeknum,flightdate,deptime,arrtime,depEstAct,arrEstAct,flightstatus,aircraft)
         
-        cur = getCursor()   #insert these values into database flight table为什么没成功？？？？？？？？？???
+        cur = getCursor()   #insert these values into database flight table
         dbsql = """insert into flight(flightnum,weeknum,flightdate,deptime,arrtime,duration,depEstAct,arrEstAct,flightstatus,aircraft)
-                   value(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"""
-        parameters = (flightnum,weeknum,flightdate,deptime,arrtime,duration,depEstAct,arrEstAct,flightstatus,aircraft)
+                   values(%s,%s,%s,%s,%s,'30:00',%s,%s,%s,%s);"""
+        parameters = (flightnum,weeknum,flightdate,deptime,arrtime,depEstAct,arrEstAct,flightstatus,aircraft)
         cur.execute(dbsql,parameters) 
         
+        print(cur.statement)
+
         return render_template('home.html')
     else:
 
@@ -690,7 +732,16 @@ def adminFlightAdd():
         cur.execute("""select regmark from aircraft;""")
         dbOutput=cur.fetchall()    
 
-        return render_template("adminFlightAdd.html",regMark=dbOutput)    
+        print(dbOutput)
+        
+        cur2 = getCursor()
+        cur.execute("""select distinct flightnum from flight;""")
+        dbOutput2=cur2.fechall()
+
+        print(dbOutput2)
+       
+
+        return render_template("adminFlightAdd.html",regMark=dbOutput,flightNum = dbOutput2)    
 
 @app.route("/admin/flight/duplicate/")
 def adminDuplicate():
