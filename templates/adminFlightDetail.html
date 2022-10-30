@@ -50,16 +50,8 @@
                     
                         <option value="{{a[7]}}">{{a[7]}}</option>
                      {% for r in regMark %}
-                        <option value="{{r[0]}}">{{r[0]}}</option>
-                        <option value="{{r[1]}}">{{r[1]}}</option>
-                        <option value="{{r[2]}}">{{r[2]}}</option>
-                        <option value="{{r[3]}}">{{r[3]}}</option>
-                        <option value="{{r[4]}}">{{r[4]}}</option>
-                        <option value="{{r[5]}}">{{r[5]}}</option>
-                        <option value="{{r[6]}}">{{r[6]}}</option>
-                        <option value="{{r[7]}}">{{r[7]}}</option>
-                        <option value="{{r[8]}}">{{r[8]}}</option>
-                        <option value="{{r[9]}}">{{r[9]}}</option>
+                        <option value="{{r}}">{{r}}</option>
+                        
                     {% endfor %}
 
                     </select>
@@ -145,18 +137,18 @@
 </form>
 {% endif %}
 
-<h1>all the passenger under this flight {{flight}}:</h1>
+<h1>all the passenger booked this flight {{flight}}:</h1>
 <table class="table table-striped">
     <thead method='POST'>
         <tr>
+            <th scope="col">booking-num</th>
             <th scope="col">passengerID</th>
             <th scope="col">firstname</th>
             <th scope="col">lastname</th>
             <th scope="col">emailaddress</th>
             <th scope="col">phonenumber</th>
             <th scope="col">passportnumber</th>
-            <th scope="col">dateofbirth</th>
-            <th scope="col">loyaltytier</th>
+           
         </tr>
     </thead>
 
@@ -164,14 +156,15 @@
 
         {% for a in passenger %}
         <tr>
+            <td>{{loop.index}}</td>
             <td><a href="/admin/passenger/details/?passengerID={{passengerID}}&staffID={{staffID}}">{{a[0]}}</a></td>
             <td>{{a[1]}}</td>
             <td>{{a[2]}}</td>
             <td>{{a[3]}}</td>
             <td>{{a[4]}}</td>
             <td>{{a[5]}}</td>
-            <td>{{a[6]}}</td>
-            <td>{{a[7]}}</td>
+           
+            
         </tr>
         {% endfor %}
     </tbody>

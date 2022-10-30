@@ -4,27 +4,22 @@
 
 
 
+from xml.dom.expatbuilder import CDATA_SECTION_NODE
 import mysql.connector
 from mysql.connector import FieldType
 import datetime
 from datetime import timedelta
 import connect_airline
-import uuid
 from flask import Flask,render_template,request,redirect
 from flask import url_for
 
-#from symbol import parameters
 
-#from symbol import parameters
 
 app = Flask(__name__)
 
-current_time = datetime.datetime(2022,10,28,17,0,0)
-current_date = datetime.date(2022,10,28)
-
-current_hms = datetime.time(17,0,0)
-
-print(current_hms)
+timeNow = datetime.datetime(2022,10,28,17,0,0)
+dateNow = datetime.date(2022,10,28)
+timeNow_hms = datetime.time(17,0,0)
 
 passengerid = """select passengerid from passenger;"""
 passengerid_list = [item for t in passengerid for item in t]
@@ -51,9 +46,9 @@ def columnOutput(dbData,cols,formatStr):
                 rowList[index]=str(item)
         print(formatStr.format(*rowList))  
 
-def genID():
-    return uuid.uuid4().fields[1]
-        
+
+ # Public system for customers
+       
 @app.route("/")
 def home():
     return render_template("home.html")
@@ -61,8 +56,8 @@ def home():
 
 @app.route("/screen/" , methods = ['POST','GET'])#select an airport, display info dep/arr at this airport
 def screen():
-    date_before = current_date - timedelta(days=2) #create a date 2days before "current day"
-    date_after = current_date + timedelta(days=5)  #create a date 5days after "current day"
+    date_before = dateNow - timedelta(days=2) #create a date 2days before "current day"
+    date_after = dateNow + timedelta(days=5)  #create a date 5days after "current day"
     
     if request.method == 'POST':
         userSelect = request.form['select']
@@ -97,14 +92,6 @@ def login():
     
     if request.method == 'POST':
         userEmail = request.form['email'] #user fill in the form with the email
-        cur = getCursor()
-        sql = ("""select passengerid from passenger
-                  where emailaddress = %s;""")
-        parameter = (userEmail,)
-        cur.execute(sql,parameter)
-        dbOutput = cur.fetchall()
-        passengerID = dbOutput[0][0]
-        print(passengerID)
 
         if userEmail in emailList:    
             print(userEmail)
@@ -128,7 +115,7 @@ def login():
                             join airport as a
                             on r.depcode = a.airportcode
                             where p.emailaddress = %s
-                            order by f.flightdate;""")
+                            order by f.flightdate,f.deptime;""")
             parameter2 = (userEmail,)
             cur2.execute(dbsql2,parameter2)
             
@@ -172,10 +159,7 @@ def cancel():
 
     
 @app.route("/login/edit/",methods = ['POST','GET'])
-def edit():
-    
-     #passengerID 这里还可以顺利抓取，但是在下面if POST 以后print（passengerID)就是none了？？？？？？？？？？
-    
+def edit():    
     if request.method == 'POST':
         userDetails = request.form
         print(userDetails)
@@ -192,7 +176,7 @@ def edit():
         dateBirth = userDetails['datebirth']
     
         
-        cur = getCursor()   #update the new details into the db 没有成功！！！！测试了并不是datetime的格式问题，是上面没有抓到Passengeid的问题！！！！
+        cur = getCursor()   #update the new details into the db 
         dbsql = """update passenger
                    set firstname=%s,lastname=%s,emailaddress=%s,phonenumber=%s,passportnumber=%s,dateofbirth=%s
                    where passengerid = %s;"""
@@ -228,38 +212,99 @@ def edit():
                            emailaddress=emailaddress, phonenumber=phonenumber,passportnumber=passportnumber,
                            dateofbirth= dateofbirth,passengerID=passengerID)
                 
-@app.route("/add/",methods = ['POST','GET'])# 想加入current_hsm 不知道语法对不对？？？？？？？？
+@app.route("/add/",methods = ['POST','GET'])#add new booking 
 def add():
     
     if request.method == 'POST':
-        date_7after = current_date + timedelta(days=7) 
+        date_7after = timeNow + timedelta(days=7) 
         userSelect = request.form['select']
         passengerID = request.form['passengerID']
         print(userSelect)  
         print(passengerID) 
 
-        cur = getCursor()   #User selects departure airport. All flights from that airport are displayed for the selected date and 7 days after that date
+
+        cur = getCursor()   #User selects departure airport. All available flights(not been cancelled and still have seat) from that airport are displayed for the selected date and 7 days after that date
         dbsql = """SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, a.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
                    FROM flight AS f
                    JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    JOIN airport AS a
-                   ON r.DepCode = a.AirportCode                   
+                   ON r.DepCode = a.AirportCode  
+                   JOIN airport as aa
+                   on r.arrcode = aa.AirportCode                 
                    JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID                  
                    join STATUS AS S
                    on f.FlightStatus = s.FlightStatus
-                   where r.DepCode = %s and f.flightdate >= %s and flightdate <= %s
-                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime                                   
+                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s and f.FlightStatus != 'Cancelled' )
+                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s and f.FlightStatus != 'Cancelled')
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   having seatavailable  > 0                                 
                    order by f.flightdate;"""
-        parameters = (userSelect, current_date,date_7after)# 想加入current_hsm 不知道语法对不对？？？？？？？？
+        parameters = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
         cur.execute(dbsql,parameters) 
         dbOutput = cur.fetchall()
+        print(dbOutput)
 
-        return render_template("add.html",userSelect = dbOutput,passengerID = passengerID) 
+        cur2=getCursor() #if have, fetch the flight that have NO SEAT !and display
+        dbsql2=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
+                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+                   FROM flight AS f
+                   JOIN route AS r
+                   ON f.FlightNum = r.FlightNum
+                   JOIN airport AS a
+                   ON r.DepCode = a.AirportCode  
+                   JOIN airport as aa
+                   on r.arrcode = aa.AirportCode                 
+                   JOIN aircraft AS ac
+                   ON f.Aircraft = ac.RegMark
+                   JOIN passengerFlight AS pf
+                   ON f.FlightID = pf.FlightID                  
+                   join STATUS AS S
+                   on f.FlightStatus = s.FlightStatus
+                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s)
+                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s)
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   having seatavailable  <= 0                                 
+                   order by f.flightdate; """)
+        parameters2 = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
+        cur2.execute(dbsql2,parameters2) 
+        dbOutput2 = cur2.fetchall()
+        print(dbOutput2)
+
+        cur3=getCursor() #if have , fetch the flight that have been CANCELLED (although have seats)
+        dbsql3=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
+                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+                   FROM flight AS f
+                   JOIN route AS r
+                   ON f.FlightNum = r.FlightNum
+                   JOIN airport AS a
+                   ON r.DepCode = a.AirportCode 
+                   JOIN airport as aa
+                   on r.arrcode = aa.AirportCode                  
+                   JOIN aircraft AS ac
+                   ON f.Aircraft = ac.RegMark
+                   JOIN passengerFlight AS pf
+                   ON f.FlightID = pf.FlightID                  
+                   join STATUS AS S
+                   on f.FlightStatus = s.FlightStatus
+                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s and f.FlightStatus = 'Cancelled')
+                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s and f.FlightStatus = 'Cancelled')
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   having seatavailable  > 0                                 
+                   order by f.flightdate;""")
+        parameters3 = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
+        cur3.execute(dbsql3,parameters3) 
+        dbOutput3 = cur3.fetchall()
+        print(dbOutput3)
+        
+   
+        return render_template("add.html",available = dbOutput,noseats=dbOutput2,cancelled=dbOutput3,passengerID = passengerID) 
+        
+           
     else:
         passengerID = request.args.get("passengerID")
         print(passengerID)
@@ -427,40 +472,95 @@ def adminDetails():             ##staff can get a specific passenger info in thi
     
     return render_template("adminDetails.html", passenger = dbOutput, passengerBooking = dbOutput2, staffID = staffID,passengerID= passengerID)
                           
-@app.route("/admin/passenger/add/",methods = ['POST','GET'])# 想加入current_hsm 不知道语法对不对？？？？？？？
+@app.route("/admin/passenger/add/",methods = ['POST','GET'])
 def adminAdd():
     
     if request.method == 'POST':
-        date_7after = current_date + timedelta(days=7) 
+        date_7after = timeNow + timedelta(days=7) 
         userSelect = request.form['select']
         passengerID = request.form['passengerID']
-        print(userSelect)   
-        print(passengerID)
-        cur = getCursor()   #User selects departure airport. All flights from that airport are displayed for the selected date and 7 days after that date
+        print(userSelect)  
+        print(passengerID) 
+
+
+        cur = getCursor()   #User selects departure airport. All available flights(not been cancelled and still have seat) from that airport are displayed for the selected date and 7 days after that date
         dbsql = """SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
                    FROM flight AS f
-                   LEFT JOIN route AS r
+                   JOIN route AS r
                    ON f.FlightNum = r.FlightNum
-                   LEFT JOIN airport AS a
-                   ON r.DepCode = a.AirportCode
-                   LEFT JOIN airport AS aa
-                   ON r.DepCode = aa.AirportCode
-                   LEFT JOIN aircraft AS ac
+                   JOIN airport AS a
+                   ON r.DepCode = a.AirportCode  
+                   JOIN airport as aa
+                   on r.arrcode = aa.AirportCode                 
+                   JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
-                   LEFT JOIN passengerFlight AS pf
-                   ON f.FlightID = pf.FlightID
-                   LEFT JOIN passenger AS p
-                   ON pf.PassengerID = p.PassengerID
-                   left join STATUS AS S
+                   JOIN passengerFlight AS pf
+                   ON f.FlightID = pf.FlightID                  
+                   join STATUS AS S
                    on f.FlightStatus = s.FlightStatus
-                   where a.airportcode = %s and f.flightdate >= %s and flightdate <= %s
-                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, a.AirportCode, f.DepEstAct, aa.AirportName, f.ArrTime, ac.Seating;                                    
+                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s and f.FlightStatus != 'Cancelled' )
+                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s and f.FlightStatus != 'Cancelled')
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   having seatavailable  > 0                                 
                    order by f.flightdate;"""
-        parameters = (userSelect, current_date,date_7after)
+        parameters = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
         cur.execute(dbsql,parameters) 
         dbOutput = cur.fetchall()
-        return render_template("adminAdd.html",userSelect = dbOutput,passengerID = passengerID) 
+        print(dbOutput)
+
+        cur2=getCursor() #if have, fetch the flight that have NO SEAT !and display
+        dbsql2=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
+                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+                   FROM flight AS f
+                   JOIN route AS r
+                   ON f.FlightNum = r.FlightNum
+                   JOIN airport AS a
+                   ON r.DepCode = a.AirportCode  
+                   JOIN airport as aa
+                   on r.arrcode = aa.AirportCode                 
+                   JOIN aircraft AS ac
+                   ON f.Aircraft = ac.RegMark
+                   JOIN passengerFlight AS pf
+                   ON f.FlightID = pf.FlightID                  
+                   join STATUS AS S
+                   on f.FlightStatus = s.FlightStatus
+                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s)
+                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s)
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   having seatavailable  <= 0                                 
+                   order by f.flightdate; """)
+        parameters2 = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
+        cur2.execute(dbsql2,parameters2) 
+        dbOutput2 = cur2.fetchall()
+        print(dbOutput2)
+
+        cur3=getCursor() #if have , fetch the flight that have been CANCELLED (although have seats)
+        dbsql3=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
+                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+                   FROM flight AS f
+                   JOIN route AS r
+                   ON f.FlightNum = r.FlightNum
+                   JOIN airport AS a
+                   ON r.DepCode = a.AirportCode 
+                   JOIN airport as aa
+                   on r.arrcode = aa.AirportCode                  
+                   JOIN aircraft AS ac
+                   ON f.Aircraft = ac.RegMark
+                   JOIN passengerFlight AS pf
+                   ON f.FlightID = pf.FlightID                  
+                   join STATUS AS S
+                   on f.FlightStatus = s.FlightStatus
+                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s and f.FlightStatus = 'Cancelled')
+                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s and f.FlightStatus = 'Cancelled')
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   having seatavailable  > 0                                 
+                   order by f.flightdate;""")
+        parameters3 = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
+        cur3.execute(dbsql3,parameters3) 
+        dbOutput3 = cur3.fetchall()
+        print(dbOutput3)
+        return render_template("adminAdd.html",available = dbOutput,noseats=dbOutput2,cancelled=dbOutput3,passengerID = passengerID) 
     else:
         passengerID = request.args.get("passengerID")
         return render_template("adminAdd.html",passengerID=passengerID)  
@@ -489,7 +589,8 @@ def adminAddSuc():
        return render_template("admin.html",success = "new booking have been added to the passenger!") 
     return render_template("admin.html",success = "the booking is exist!") 
 
-@app.route("/admin/passenger/edit/",methods = ['POST','GET'])
+@app.route("/admin/passenger/edit/",methods = ['POST','GET'])#没做到题21！！！！If status is set to Cancelled, then the estimated/actual times are set to null.
+
 def adminEdit():
     
     if request.method == 'POST':
@@ -504,7 +605,7 @@ def adminEdit():
         dateBirth = userDetails['datebirth']
         passengerID = userDetails['passengerID']
         
-        cur = getCursor()   #update the new details into the db为什么没成功？？datebirth要从str变成date？？？？？？？？？
+        cur = getCursor()  
         dbsql = """update passenger
                    set firstname=%s,lastname=%s,emailaddress=%s,phonenumber=%s,passportnumber=%s,dateofbirth=%s
                    where passengerid = %s;"""
@@ -562,12 +663,13 @@ def adminCancel():
    
     
 @app.route("/admin/flight/", methods = ['POST','GET']) #staff can get all the flights info in a talbe in this page,only manager can add flights in this page
-def adminFlight():  
+def adminFlight():  #题18！！！！The list can be filtered by date range, departure or arrival 没做到！！！！
+
     staffID = request.args.get("staffID")
     isManager = CheckManager(staffID)
     print(isManager)
 
-    date_7after = current_date + timedelta(days=7) 
+    date_7after = dateNow + timedelta(days=7) 
 
     cur = getCursor()
     sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
@@ -578,7 +680,7 @@ def adminFlight():
                    LEFT JOIN airport AS a
                    ON r.DepCode = a.AirportCode
                    LEFT JOIN airport AS aa
-                    ON r.DepCode = aa.AirportCode
+                    ON r.arrCode = aa.AirportCode
                    LEFT JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    LEFT JOIN passengerFlight AS pf
@@ -590,7 +692,7 @@ def adminFlight():
                    where f.flightdate >= %s and f.flightdate <= %s
                    GROUP BY f.FlightID, r.FlightNum, f.FlightDate, a.AirportCode, f.DepEstAct, aa.AirportName, f.ArrTime, ac.Seating
                   order by f.FlightDate, f.deptime,a.Airportname;""")        
-    parameter = (current_date,date_7after)
+    parameter = (dateNow,date_7after)
     cur.execute(sql,parameter)
     dbOutput = cur.fetchall()
     return render_template("adminFlight.html", userSelect = dbOutput, staffID = staffID, isManager=isManager)
@@ -653,6 +755,7 @@ def flightDetail():
        cur3 = getCursor()
        cur3.execute("""select regmark from aircraft;""") #fetch all the regmark for manager to choose
        dbOutput3=cur3.fetchall()
+       regMark = [item for t in dbOutput3 for item in t]
 
        cur = getCursor()   #fetch the details of this specific flight
        sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
@@ -680,7 +783,7 @@ def flightDetail():
        dbOutput = cur.fetchall()
     
        cur2 = getCursor()  #fetch all the passenger under this flight
-       sql2 = ("""SELECT * 
+       sql2 = ("""SELECT p.passengerid, p.firstname, p.lastname, p.emailaddress, p.phonenumber, p.passportnumber 
             from passenger as p
             join passengerflight as pf
             on pf.PassengerID = p.PassengerID
@@ -695,11 +798,11 @@ def flightDetail():
        passengerID = dbOutput2[0][0]
     
        return render_template("adminFlightDetail.html",flightID=flightID,staffID=staffID,passengerID=passengerID,
-        userSelect = dbOutput, passenger = dbOutput2,isManager=isManager,regMark=dbOutput3)
+        userSelect = dbOutput, passenger = dbOutput2,isManager=isManager,regMark=regMark)
 
 
-@app.route("/admin/flight/add/",methods = ['POST','GET'])#insert these values into database flight table 为什么没成功？？？？？？？？？???
-def adminFlightAdd():
+@app.route("/admin/flight/add/",methods = ['POST','GET'])#insert these values into database flight table to make a new flight
+def adminFlightAdd():# 
     if request.method == 'POST':
         newFlight = request.form
         print(newFlight)
@@ -709,39 +812,39 @@ def adminFlightAdd():
         flightdate = newFlight['flightdate']
         deptime = newFlight['deptime']
         arrtime = newFlight['arrtime']
-       # duration = arrtime -deptime
+        duration = (datetime.datetime.strptime(arrtime,'%H:%M')) -(datetime.datetime.strptime(deptime,'%H:%M'))
         depEstAct = newFlight['deptime']
         arrEstAct = newFlight['arrtime']
         flightstatus = "On time"
         aircraft = newFlight['aircraft']
-
-        print(flightnum,weeknum,flightdate,deptime,arrtime,depEstAct,arrEstAct,flightstatus,aircraft)
         
         cur = getCursor()   #insert these values into database flight table
         dbsql = """insert into flight(flightnum,weeknum,flightdate,deptime,arrtime,duration,depEstAct,arrEstAct,flightstatus,aircraft)
-                   values(%s,%s,%s,%s,%s,'30:00',%s,%s,%s,%s);"""
-        parameters = (flightnum,weeknum,flightdate,deptime,arrtime,depEstAct,arrEstAct,flightstatus,aircraft)
+                   values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"""
+        parameters = (flightnum,weeknum,flightdate,deptime,arrtime,duration,depEstAct,arrEstAct,flightstatus,aircraft)
         cur.execute(dbsql,parameters) 
         
         print(cur.statement)
 
-        return render_template('home.html')
+        return render_template('admin.html', add_flight="new flight had been added!!")
     else:
 
         cur = getCursor()
-        cur.execute("""select regmark from aircraft;""")
-        dbOutput=cur.fetchall()    
+        cur.execute("""select regmark from aircraft;""")#fetch all the regmark for user to choose
+        dbOutput=cur.fetchall()   
+        regMark = [item for t in dbOutput for item in t] 
 
-        print(dbOutput)
+        print(regMark)
         
         cur2 = getCursor()
-        cur.execute("""select distinct flightnum from flight;""")
-        dbOutput2=cur2.fechall()
+        cur2.execute("""select distinct flightnum from flight;""")#fetch all the flightnum for choosing
+        dbOutput2=cur2.fetchall()
+        flightnum = [item for t in dbOutput2 for item in t]
 
-        print(dbOutput2)
+        print(flightnum)
        
 
-        return render_template("adminFlightAdd.html",regMark=dbOutput,flightNum = dbOutput2)    
+        return render_template("adminFlightAdd.html",regMark=regMark,flightNum = flightnum)    
 
 @app.route("/admin/flight/duplicate/")
 def adminDuplicate():

@@ -19,7 +19,7 @@
     <input type="submit">
 </form>
 
-{% if userSelect %}
+
 <table class="table table-striped">
     <thead method='POST'>
         <tr>
@@ -37,9 +37,39 @@
     </thead>
 
     <tbody>
-        {% for a in userSelect %}
+        {% for a in available %}
         <tr>
-            <td><a href="/admin/passenger/add/success?passengerID={{passengerID}}&flightID={{a[0]}}">{{a[0]}}</a></td>
+            <td><a href="/admin/passenger/add/success?passengerID={{passengerID}}&flightID={{a[0]}}">{{a[0]}}</a></td> <!----flight that can be booked-->
+            <td>{{a[1]}}</td>
+            <td>{{a[2]}}</td>
+            <td>{{a[3]}}</td>
+            <td>{{a[4]}}</td>
+            <td>{{a[5]}}</td>
+            <td>{{a[6]}}</td>
+            <td>{{a[7]}}</td>
+            <td>{{a[8]}}</td>
+            <td>{{a[9]}}</td>
+        </tr>
+        {% endfor %}
+
+        {% for a in noseats %} <!----flight that CANNOT be booked (no seats)-->
+        <tr>
+            <td>{{a[0]}}</td>
+            <td>{{a[1]}}</td>
+            <td>{{a[2]}}</td>
+            <td>{{a[3]}}</td>
+            <td>{{a[4]}}</td>
+            <td>{{a[5]}}</td>
+            <td>{{a[6]}}</td>
+            <td>{{a[7]}}</td>
+            <td>{{a[8]}}</td>
+            <td>{{a[9]}}</td>
+        </tr>
+        {% endfor %}
+
+        {% for a in cancelled %} <!----flight that CANNOT be booked(been cancelled)-->
+        <tr>
+            <td>{{a[0]}}</td>
             <td>{{a[1]}}</td>
             <td>{{a[2]}}</td>
             <td>{{a[3]}}</td>
@@ -54,7 +84,9 @@
     </tbody>
 </table>
 
+
+
 <button><a href="/admin/passenger/add?passengerID={{passengerID}}">back to previous page!</a></button>
-{% endif %}
+
 
 {% endblock %}
