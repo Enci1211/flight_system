@@ -36,17 +36,17 @@
                 <td>{{a[2]}}</td>
                 <td>{{a[3]}}</td>
                 <td>
-                    <input type="time" id="deptime" name="deptime">
+                    <input type="time" id="deptime" name="deptime" required>
                     <label for="deptime">{{a[4]}}</label>
                 </td>
                 <td>{{a[5]}}</td>
                 <td>
-                    <input type="time" id="arrtime" name="arrtime">
+                    <input type="time" id="arrtime" name="arrtime" required>
                     <label for="arrtime">{{a[4]}}</label>
                 </td>
                 <td>
                     
-                    <select name="regMark" id="regMark">
+                    <select name="regMark" id="regMark" required>
                     
                         <option value="{{a[7]}}">{{a[7]}}</option>
                      {% for r in regMark %}
@@ -60,9 +60,9 @@
                 <td>{{a[8]}}</td>
                 <td>{{a[9]}}</td>
                 <td>
-                    <select name="status" id="status">
+                    <select name="status" id="status" required>
                         <option value="{{a[10]}}">{{a[10]}}</option>
-                        <option value="Canceled">Canceled</option>
+                        <option value="Cancelled">Cancelled</option>
                         <option value="Delayed">Delayed</option>
                         <option value="Departed">Departed</option>
                         <option value="Landed">Landed</option>
@@ -107,25 +107,25 @@
                 <td>{{a[2]}}</td>
                 <td>{{a[3]}}</td>
                 <td>
-                    <input type="time" id="deptime" name="deptime">
+                    <input type="time" id="deptime" name="deptime" required>
                     <label for="deptime">{{a[4]}}</label>
                 </td>
                 <td>{{a[5]}}</td>
                 <td>
-                    <input type="time" id="arrtime" name="arrtime">
+                    <input type="time" id="arrtime" name="arrtime" required>
                     <label for="arrtime">{{a[4]}}</label>
                 </td>
                 <td>{{a[7]}}</td>
                 <td>{{a[8]}}</td>
                 <td>{{a[9]}}</td>
                 <td>
-                    <select name="status" id="status">
+                    <select name="status" id="status" required>
                         <option value="{{a[10]}}">{{a[10]}}</option>
-                        <option value="">Canceled</option>
-                        <option value="">Delayed</option>
-                        <option value="">Departed</option>
-                        <option value="">Landed</option>
-                        <option value="">On time</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Delayed">Delayed</option>
+                        <option value="Departed">Departed</option>
+                        <option value="Landed">Landed</option>
+                        <option value="On time">On time</option>
                     </select>
                     
                 </td>

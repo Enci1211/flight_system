@@ -4,7 +4,7 @@
 
 
 
-from xml.dom.expatbuilder import CDATA_SECTION_NODE
+
 import mysql.connector
 from mysql.connector import FieldType
 import datetime
@@ -21,10 +21,6 @@ timeNow = datetime.datetime(2022,10,28,17,0,0)
 dateNow = datetime.date(2022,10,28)
 timeNow_hms = datetime.time(17,0,0)
 
-passengerid = """select passengerid from passenger;"""
-passengerid_list = [item for t in passengerid for item in t]
-
-isManager = """SELECT staffid FROM staff where IsManager = "1";"""
 
 
 def getCursor():
@@ -362,8 +358,7 @@ def register():
     
 #Administrative system for staff
 
-def CheckManager(staffID):
-    # SQL with staff ID returning IsManager
+def CheckManager(staffID):#check if the staff is the manager or not
     cur = getCursor()
     sql = ("""SELECT ismanager from staff
                    WHERE staffid = %s;""")
@@ -377,7 +372,7 @@ def CheckManager(staffID):
         return False
     
 
-@app.route("/admin/", methods = ['POST','GET']) 
+@app.route("/admin/", methods = ['POST','GET']) #staff login page
 def admin():   
     if request.method == 'POST':
         
@@ -423,7 +418,7 @@ def adminPassenger():
        return render_template("adminPassenger.html", userSelect = dbOutput,staffID = staffID)
 
 
-@app.route("/admin/passenger/register/", methods = ['POST','GET']) 
+@app.route("/admin/passenger/register/", methods = ['POST','GET']) #add new customer
 def adminRegister():
     staffID = request.args.get("staffID")
     if request.method == 'POST':
@@ -472,7 +467,7 @@ def adminDetails():             ##staff can get a specific passenger info in thi
     
     return render_template("adminDetails.html", passenger = dbOutput, passengerBooking = dbOutput2, staffID = staffID,passengerID= passengerID)
                           
-@app.route("/admin/passenger/add/",methods = ['POST','GET'])
+@app.route("/admin/passenger/add/",methods = ['POST','GET']) #add new booking for specific customer
 def adminAdd():
     
     if request.method == 'POST':
@@ -589,7 +584,7 @@ def adminAddSuc():
        return render_template("admin.html",success = "new booking have been added to the passenger!") 
     return render_template("admin.html",success = "the booking is exist!") 
 
-@app.route("/admin/passenger/edit/",methods = ['POST','GET'])#没做到题21！！！！If status is set to Cancelled, then the estimated/actual times are set to null.
+@app.route("/admin/passenger/edit/",methods = ['POST','GET'])#edit the passenger details
 
 def adminEdit():
     
@@ -641,7 +636,7 @@ def adminEdit():
                            dateofbirth= dateofbirth,passengerID=passengerID)
                 
                      
-@app.route("/admin/passenger/cancel/")
+@app.route("/admin/passenger/cancel/")#cancel the booking from a specific passenger
 def adminCancel():
     flightID = request.args.get("flightID")
     passengerID = request.args.get("passengerID")
@@ -649,7 +644,7 @@ def adminCancel():
     print(passengerID)
     print(flightID)
     
-    cur = getCursor() #delete the booking 
+    cur = getCursor() 
     sql = ("""DELETE FROM passengerflight
               where flightid = %s and passengerid = %s;""")
     paremeters =(flightID,passengerID)
@@ -698,9 +693,9 @@ def adminFlight():  #题18！！！！The list can be filtered by date range, de
     return render_template("adminFlight.html", userSelect = dbOutput, staffID = staffID, isManager=isManager)
     
     
-@app.route("/admin/flight/details/", methods = ['POST','GET'])   #update the new details into the db 
+@app.route("/admin/flight/details/", methods = ['POST','GET'])   #flight manifest, update the new details of specific flight没做到题21！！！！If status is set to Cancelled, then the estimated/actual times are set to null.
 def flightDetail():
-    if request.method == 'POST':  #if the staff change the flight info
+    if request.method == 'POST':  #if the staff changed the flight info
         flightDetails=request.form
         staffID = flightDetails['staffID']
         flightID = flightDetails['flightID']
@@ -715,6 +710,7 @@ def flightDetail():
            regMark = flightDetails['regMark']
            status = flightDetails['status']
            flightID = flightDetails['flightID']
+           duration = (datetime.datetime.strptime(arrtime,'%H:%M')) -(datetime.datetime.strptime(deptime,'%H:%M'))
 
            print(flightID)
            print(deptime)
@@ -722,31 +718,47 @@ def flightDetail():
            print(regMark)
            print(status)
            
-
-
-           cur = getCursor() 
-           dbsql = """update flight
-                   set deptime=%s,arrtime=%s,aircraft =%s,flightstatus=%s
+           if status == 'Cancelled': #if the status is 'Cancelled' , change the value of arrEstAct and depEstAct to NULL
+              cur = getCursor() 
+              dbsql = """update flight
+                   set deptime=%s,arrtime=%s,duration=%s,depestact=%s, arrestact=%s, aircraft =%s,flightstatus=%s
                    where flightid = %s;"""
-           parameters = (deptime,arrtime,regMark,status,flightID)
-           cur.execute(dbsql,parameters) 
-           connection.commit()
-
-           print(cur.statement)
+              parameters = (deptime,arrtime,duration,None,None,regMark,status,flightID)
+              cur.execute(dbsql,parameters) 
+              connection.commit()
+           else:
+              cur = getCursor() 
+              dbsql = """update flight
+                   set deptime=%s,arrtime=%s,duration=%s,depestact=%s, arrestact=%s,aircraft =%s,flightstatus=%s
+                   where flightid = %s;"""
+              parameters = (deptime,arrtime,duration,deptime,arrtime,regMark,status,flightID)
+              cur.execute(dbsql,parameters) 
+              connection.commit()
 
            return render_template("admin.html",edit_flight="flight details had been changed!")
         else:
             deptime = flightDetails['deptime']
             arrtime = flightDetails['arrtime']
             status = flightDetails['status']
+            duration = (datetime.datetime.strptime(arrtime,'%H:%M')) -(datetime.datetime.strptime(deptime,'%H:%M'))
 
-            cur = getCursor()  
-            dbsql = """update flight
-                   set deptime=%s,arrtime=%s,flightstatus=%s
+            if status == 'Cancelled':
+                cur = getCursor()  
+                dbsql = """update flight
+                   set deptime=%s,arrtime=%s,duration=%s,depestact=%s, arrestact=%s,flightstatus=%s
                    where flightid = %s;"""
-            parameters = (deptime,arrtime,status,flightID)
-            cur.execute(dbsql,parameters) 
-            connection.commit()
+                parameters = (deptime,arrtime,duration,None,None,status,flightID)
+                cur.execute(dbsql,parameters) 
+                connection.commit()
+            else:
+                cur = getCursor()  
+                dbsql = """update flight
+                   set deptime=%s,arrtime=%s,duration=%s,depestact=%s, arrestact=%s,flightstatus=%s
+                   where flightid = %s;"""
+                parameters = (deptime,arrtime,duration,deptime,arrtime,status,flightID)
+                cur.execute(dbsql,parameters) 
+                connection.commit()
+            
             return render_template("admin.html",edit_flight="flight details had been changed!")        
     else:
        staffID = request.args.get("staffID")
@@ -801,8 +813,8 @@ def flightDetail():
         userSelect = dbOutput, passenger = dbOutput2,isManager=isManager,regMark=regMark)
 
 
-@app.route("/admin/flight/add/",methods = ['POST','GET'])#insert these values into database flight table to make a new flight
-def adminFlightAdd():# 
+@app.route("/admin/flight/add/",methods = ['POST','GET'])# make a new flight(only manager can do)
+def adminFlightAdd():
     if request.method == 'POST':
         newFlight = request.form
         print(newFlight)
@@ -846,7 +858,7 @@ def adminFlightAdd():#
 
         return render_template("adminFlightAdd.html",regMark=regMark,flightNum = flightnum)    
 
-@app.route("/admin/flight/duplicate/")
+@app.route("/admin/flight/duplicate/")#duplicate new week from the lastest week
 def adminDuplicate():
     cur=getCursor()
     cur.execute("""INSERT INTO flight(FlightNum, WeekNum, FlightDate, DepTime, ArrTime, Duration, DepEstAct, ArrEstAct, FlightStatus, Aircraft)
