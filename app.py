@@ -653,21 +653,64 @@ def adminCancel():
 
     print(cur.statement)
     
-    return render_template("admin.html",cancel = "the booking have been canceled")
-
-   
+    return render_template("admin.html",cancel = "the booking have been canceled")   
     
 @app.route("/admin/flight/", methods = ['POST','GET']) #staff can get all the flights info in a talbe in this page,only manager can add flights in this page
-def adminFlight():  #题18！！！！The list can be filtered by date range, departure or arrival 没做到！！！！
+def adminFlight():  
+    if request.method == 'POST':
+       staffID = request.form.get("staffID")
+       print(staffID)
+       isManager = CheckManager(staffID)
 
-    staffID = request.args.get("staffID")
-    isManager = CheckManager(staffID)
-    print(isManager)
+       search = request.form.get("search") 
+       depcode=search.upper()
+       print(depcode)
 
-    date_7after = dateNow + timedelta(days=7) 
+       cur = getCursor()
+       cur.execute("""SELECT depcode from route;""")#get all the dep-code from database
+       dbOutput = cur.fetchall()
+       depCode_list = [item for t in dbOutput for item in t]
+       
+       if depcode in depCode_list:  #The list can be filtered by departure airport-CODE
+           staffID = request.form.get("staffID")
+           isManager = CheckManager(staffID)
+           print(isManager)
 
-    cur = getCursor()
-    sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
+           date_7after = dateNow + timedelta(days=7) 
+           cur = getCursor()
+           sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
+                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
+                   FROM flight AS f
+                   LEFT JOIN route AS r
+                   ON f.FlightNum = r.FlightNum
+                   LEFT JOIN airport AS a
+                   ON r.DepCode = a.AirportCode
+                   LEFT JOIN airport AS aa
+                    ON r.arrCode = aa.AirportCode
+                   LEFT JOIN aircraft AS ac
+                   ON f.Aircraft = ac.RegMark
+                   LEFT JOIN passengerFlight AS pf
+                   ON f.FlightID = pf.FlightID
+                   LEFT JOIN passenger AS p
+                   ON pf.PassengerID = p.PassengerID
+                   left join STATUS AS S
+                   on f.FlightStatus = s.FlightStatus
+                   where f.flightdate >= %s and f.flightdate <= %s and r.depcode = %s
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, a.AirportCode, f.DepEstAct, aa.AirportName, f.ArrTime, ac.Seating
+                  order by f.FlightDate, f.deptime,a.Airportname;""")        
+           parameter = (dateNow,date_7after,depcode)
+           cur.execute(sql,parameter)
+           dbOutput = cur.fetchall()
+           return render_template("adminFlight.html", userSelect = dbOutput,staffID = staffID, isManager=isManager)
+       else:
+           staffID = request.form.get("staffID")
+           isManager = CheckManager(staffID)
+           print(isManager)
+
+           date_7after = dateNow + timedelta(days=7) 
+
+           cur = getCursor()
+           sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
                    f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
                    FROM flight AS f
                    LEFT JOIN route AS r
@@ -687,13 +730,44 @@ def adminFlight():  #题18！！！！The list can be filtered by date range, de
                    where f.flightdate >= %s and f.flightdate <= %s
                    GROUP BY f.FlightID, r.FlightNum, f.FlightDate, a.AirportCode, f.DepEstAct, aa.AirportName, f.ArrTime, ac.Seating
                   order by f.FlightDate, f.deptime,a.Airportname;""")        
-    parameter = (dateNow,date_7after)
-    cur.execute(sql,parameter)
-    dbOutput = cur.fetchall()
-    return render_template("adminFlight.html", userSelect = dbOutput, staffID = staffID, isManager=isManager)
-    
-    
-@app.route("/admin/flight/details/", methods = ['POST','GET'])   #flight manifest, update the new details of specific flight没做到题21！！！！If status is set to Cancelled, then the estimated/actual times are set to null.
+           parameter = (dateNow,date_7after)
+           cur.execute(sql,parameter)
+           dbOutput = cur.fetchall()
+           return render_template("adminFlight.html", userSelect = dbOutput,staffID = staffID, isManager=isManager)
+    else:
+       staffID = request.args.get("staffID")
+       isManager = CheckManager(staffID)
+       print(isManager)
+
+       date_7after = dateNow + timedelta(days=7) 
+
+       cur = getCursor()
+       sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
+                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
+                   FROM flight AS f
+                   LEFT JOIN route AS r
+                   ON f.FlightNum = r.FlightNum
+                   LEFT JOIN airport AS a
+                   ON r.DepCode = a.AirportCode
+                   LEFT JOIN airport AS aa
+                    ON r.arrCode = aa.AirportCode
+                   LEFT JOIN aircraft AS ac
+                   ON f.Aircraft = ac.RegMark
+                   LEFT JOIN passengerFlight AS pf
+                   ON f.FlightID = pf.FlightID
+                   LEFT JOIN passenger AS p
+                   ON pf.PassengerID = p.PassengerID
+                   left join STATUS AS S
+                   on f.FlightStatus = s.FlightStatus
+                   where f.flightdate >= %s and f.flightdate <= %s
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, a.AirportCode, f.DepEstAct, aa.AirportName, f.ArrTime, ac.Seating
+                  order by f.FlightDate, f.deptime,a.Airportname;""")        
+       parameter = (dateNow,date_7after)
+       cur.execute(sql,parameter)
+       dbOutput = cur.fetchall()
+       return render_template("adminFlight.html", userSelect = dbOutput, staffID = staffID, isManager=isManager)
+     
+@app.route("/admin/flight/details/", methods = ['POST','GET'])   #flight manifest, update the new details of specific flight
 def flightDetail():
     if request.method == 'POST':  #if the staff changed the flight info
         flightDetails=request.form
@@ -867,7 +941,7 @@ def adminDuplicate():
             WHERE WeekNum = (SELECT MAX(WeekNum) FROM flight);""")
     
     return render_template("admin.html",duplicate="flights for new week had been duplicated from lastest week!")
-#记得要在上传github时候有一个text记录所有pip installed
+
 
 
 

@@ -3,6 +3,13 @@
 
 {% block content %}
 <div class="flightdetails" method="POST">
+    <form action="{{url_for('adminFlight')}}" method="POST">
+        <label for="search">enter the dep-airport code to filter the flight:</label>
+        <input type="text" id="search" name="search">
+        <input type="hidden" value="{{staffID}}" name="staffID" id="staffID">
+        <input type="submit">
+    </form>
+
     <h1>flight details:</h1>
     {% if isManager %}
        <button><a href="/admin/flight/add/">add new flight!</a></button>
