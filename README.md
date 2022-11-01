@@ -1,14 +1,3 @@
-# assessment3
-for the third assessment of 636
-
-## 在本地写好code，如何上传到github网页？
-
-- github destop中选择用VScode打开（respository)
-- 修改此.md文档或其他文档中的code
-- 保存ctrl+s
-- 回到github destop，左下角选择commit to main(可加description)
-- 选择push origin
-- 此时打开github website，可以看到修改过后的文档状况
 
 # Project title
 Python and Database Assessment
@@ -26,7 +15,7 @@ passenger information.
 # Project details and design
 
 - ## universal 
-     - I have a app.py file coded with python(flask), which connected to my database 
+     - There is a app.py file coded with python(flask), which connected to my database 
      - In my templates folder, there are all the html file connected to my app.py file
      - My home.html file includes logo pictures which located in my static folder as well as the contacts info, and those will be inherit to all the other html files
     - My home.html has the link of bootstrap, and it will be inherit to other html files
@@ -52,6 +41,8 @@ passenger information.
       this page is linked from the /login/ page(when user login successfully and then click the button named 'add new booking!')\
       this page will load add.html file,and user can selects departure airport here. All flights from that airport are displayed for the selected date and 7 days after that date, A button named 'back' is available to take the customer back to the previous page which is the /login/ page. 
     - ### @app.route("/add/success/") 
+      In this page,it will recieve the value of flightid and passengerid passed from html file, and send the value into passengerflight table in database\
+      It will load login.html and a message to remind user booked successfully. 
     - ### @app.route("/register/"）
       this page is linked from the /login page,when user click the 'register' button,they will come to here\
       it will load the register.html file at first, and there is a form for user to fill, after they submit(if request.method == 'POST'), there is a sql query to fetch this values and send it into the database (passenger table), then we have a new passenger\
