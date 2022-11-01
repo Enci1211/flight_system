@@ -11,7 +11,6 @@ of Nelson, New Zealand. It manages customer bookings, flights, routes, airports 
 The website consists of two main parts: a public area for customers to look up flight details and 
 book flights, and an administration area for staff to add and edit flight details, bookings and 
 passenger information.
-# How to Install and Run the Project
 # Project details and design
 
 - ## universal 
