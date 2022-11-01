@@ -59,19 +59,19 @@ def screen():
         userSelect = request.form['select']
                           
         cur = getCursor() #Shows appropriate arrivals and departures information for a selected airport
-        dbsql = ("""SELECT r.flightnum, f.flightdate, r.depcode, a.airportname as depairport, f.deptime, r.arrcode, aa.airportname as arrairport,f.ArrTime
+        dbsql = ("""SELECT r.FlightNum, f.FlightDate, r.DepCode, a.AirportName as depairport, f.DepTime, r.ArrCode, aa.AirportName as arrairport,f.ArrTime
                    from route as r
                    join airport as a
-                   on r.depcode = a.airportcode
+                   on r.DepCode = a.AirportCode
                    join airport as aa
-                   on r.arrcode = aa.airportcode
+                   on r.ArrCode = aa.AirportCode
                    join flight as f
-                   on f.flightnum = r.flightnum
-                   where (f.flightdate >= %s and f.flightdate <= %s AND
-                         a.airportcode = %s) or 
-                         (f.flightdate >= %s and f.flightdate <= %s AND 
-                         aa.airportcode = %s)
-                   order by f.flightdate;""")
+                   on f.FlightNum = r.FlightNum
+                   where (f.FlightDate >= %s and f.FlightDate <= %s AND
+                         a.AirportCode = %s) or 
+                         (f.FlightDate >= %s and f.FlightDate <= %s AND 
+                         aa.AirportCode = %s)
+                   order by f.FlightDate;""")
         parameters = (date_before,date_after,userSelect, date_before,date_after,userSelect)
         cur.execute(dbsql,parameters) 
         dbOutput = cur.fetchall()
@@ -82,7 +82,7 @@ def screen():
 @app.route("/login/", methods = ['POST','GET'])#enter id to login,if successfull, display all the booking under this user(email)
 def login():
     cur = getCursor()
-    cur.execute("""SELECT emailaddress FROM passenger;""")#get all the id from database
+    cur.execute("""SELECT EmailAddress FROM passenger;""")#get all the id from database
     dbOutput = cur.fetchall()
     emailList = [item for t in dbOutput for item in t]
     
@@ -92,33 +92,33 @@ def login():
         if userEmail in emailList:    
             print(userEmail)
             cur = getCursor()  #fetch the user details
-            dbsql = ("""select passengerid, firstname, lastname, emailaddress
+            dbsql = ("""select PassengerID, FirstName, LastName, EmailAddress
                         from passenger
-                        where emailaddress = %s""")
+                        where EmailAddress = %s""")
             parameter = (userEmail,) 
             cur.execute(dbsql,parameter)
             dbOutput = cur.fetchall()  
                  
             cur2 = getCursor()#fetch the details of all the bookings this user(with this email above) had made            
-            dbsql2=("""SELECT p.passengerid, f.flightid, f.flightnum, f.flightdate,f.deptime,a.airportname as depairport
+            dbsql2=("""SELECT p.PassengerID, f.FlightID, f.FlightNum, f.FlightDate,f.DepTime,a.AirportName as depairport
                             from passenger as p
-                            join passengerflight as pf
+                            join passengerFlight as pf
                             on pf.PassengerID = p.PassengerID
                             join flight as f
-                            on f.Flightid = pf.flightid 
+                            on f.FlightID = pf.FlightID 
                             join route as r
-                            on f.flightnum = r.flightnum
+                            on f.FlightNum = r.FlightNum
                             join airport as a
-                            on r.depcode = a.airportcode
-                            where p.emailaddress = %s
-                            order by f.flightdate,f.deptime;""")
+                            on r.DepCode = a.AirportCode
+                            where p.EmailAddress = %s
+                            order by f.FlightDate,f.DepTime;""")
             parameter2 = (userEmail,)
             cur2.execute(dbsql2,parameter2)
             
             dbOutput2 = cur2.fetchall()
             
             cur3 = getCursor()  #fetch the passengerID
-            dbsql3 = ("""select passengerid from passenger
+            dbsql3 = ("""select PassengerID from passenger
                          where EmailAddress = %s;""")
             parameter3 = (userEmail,)
             cur3.execute(dbsql3,parameter3)
@@ -143,8 +143,8 @@ def cancel():
     print(passengerID)
     
     cur = getCursor()
-    sql = ("""DELETE FROM passengerflight
-              where flightID = %s and passengerid = %s;""")
+    sql = ("""DELETE FROM passengerFlight
+              where FlightID = %s and PassengerID = %s;""")
     parameters=(flightID, passengerID)
     cur.execute(sql,parameters)
     connection.commit()
@@ -174,8 +174,8 @@ def edit():
         
         cur = getCursor()   #update the new details into the db 
         dbsql = """update passenger
-                   set firstname=%s,lastname=%s,emailaddress=%s,phonenumber=%s,passportnumber=%s,dateofbirth=%s
-                   where passengerid = %s;"""
+                   set FirstName=%s,LastName=%s,EmailAddress=%s,PhoneNumber=%s,PassportNumber=%s,DateOfBirth=%s
+                   where PassengerID = %s;"""
         parameters = (firstName,lastName,emailAddress,phoneNum,passportNum,dateBirth,passengerID)
         cur.execute(dbsql,parameters) 
         connection.commit()
@@ -187,9 +187,9 @@ def edit():
         passengerID = request.args.get("passengerID")
         print(passengerID)
         cur = getCursor() #fetch the details for this specific passenger
-        dbsql = ("""select firstname, lastname, emailaddress, phonenumber, passportnumber, dateofbirth,passengerid 
+        dbsql = ("""select FirstName, LastName, EmailAddress, PhoneNumber, PassportNumber, DateOfBirth,PassengerID 
                 from passenger
-                where passengerid = %s""")
+                where PassengerID = %s""")
         parameter = (passengerID,)
         cur.execute(dbsql,parameter)
         dbOutput = cur.fetchall()
@@ -220,78 +220,78 @@ def add():
 
 
         cur = getCursor()   #User selects departure airport. All available flights(not been cancelled and still have seat) from that airport are displayed for the selected date and 7 days after that date
-        dbsql = """SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+        dbsql = """SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.StatusDesc
                    FROM flight AS f
                    JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    JOIN airport AS a
                    ON r.DepCode = a.AirportCode  
                    JOIN airport as aa
-                   on r.arrcode = aa.AirportCode                 
+                   on r.ArrCode = aa.AirportCode                 
                    JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID                  
-                   join STATUS AS S
+                   join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s and f.FlightStatus != 'Cancelled' )
-                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s and f.FlightStatus != 'Cancelled')
+                   where (r.DepCode = %s and f.FlightDate = %s and f.FlightDate <= %s and f.DepTime >= %s and f.FlightStatus != 'Cancelled' )
+                         or (r.DepCode = %s and f.FlightDate > %s and f.FlightDate <= %s and f.FlightStatus != 'Cancelled')
                    GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
                    having seatavailable  > 0                                 
-                   order by f.flightdate;"""
+                   order by f.FlightDate;"""
         parameters = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
         cur.execute(dbsql,parameters) 
         dbOutput = cur.fetchall()
         print(dbOutput)
 
         cur2=getCursor() #if have, fetch the flight that have NO SEAT !and display
-        dbsql2=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+        dbsql2=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.StatusDesc
                    FROM flight AS f
                    JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    JOIN airport AS a
                    ON r.DepCode = a.AirportCode  
                    JOIN airport as aa
-                   on r.arrcode = aa.AirportCode                 
+                   on r.ArrCode = aa.AirportCode                 
                    JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID                  
-                   join STATUS AS S
+                   join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s)
-                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s)
-                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   where (r.DepCode = %s and f.FlightDate = %s and f.FlightDate <= %s and f.DepTime >= %s)
+                         or (r.DepCode = %s and f.FlightDate > %s and f.FlightDate <= %s)
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.DepTime, a.AirportName, f.ArrTime  
                    having seatavailable  <= 0                                 
-                   order by f.flightdate; """)
+                   order by f.FlightDate; """)
         parameters2 = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
         cur2.execute(dbsql2,parameters2) 
         dbOutput2 = cur2.fetchall()
         print(dbOutput2)
 
         cur3=getCursor() #if have , fetch the flight that have been CANCELLED (although have seats)
-        dbsql3=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+        dbsql3=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.StatusDesc
                    FROM flight AS f
                    JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    JOIN airport AS a
                    ON r.DepCode = a.AirportCode 
                    JOIN airport as aa
-                   on r.arrcode = aa.AirportCode                  
+                   on r.ArrCode = aa.AirportCode                  
                    JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID                  
-                   join STATUS AS S
+                   join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s and f.FlightStatus = 'Cancelled')
-                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s and f.FlightStatus = 'Cancelled')
+                   where (r.DepCode = %s and f.FlightDate = %s and f.FlightDate <= %s and f.DepTime >= %s and f.FlightStatus = 'Cancelled')
+                         or (r.DepCode = %s and f.FlightDate > %s and f.FlightDate <= %s and f.FlightStatus = 'Cancelled')
                    GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
                    having seatavailable  > 0                                 
-                   order by f.flightdate;""")
+                   order by f.FlightDate;""")
         parameters3 = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
         cur3.execute(dbsql3,parameters3) 
         dbOutput3 = cur3.fetchall()
@@ -313,8 +313,8 @@ def addSuccess():
     flightID = request.args.get("flightID") 
 
     cur = getCursor()
-    dbsql = ("""select * from passengerflight
-                where flightid = %s and passengerid = %s;""")
+    dbsql = ("""select * from passengerFlight
+                where FlightID = %s and PassengerID = %s;""")
     parameters=(flightID,passengerID)
     cur.execute(dbsql,parameters)
     dbOutput = cur.fetchall()
@@ -323,7 +323,7 @@ def addSuccess():
     if len(dbOutput) == 0:
 
        cur = getCursor()
-       dbsql = """INSERT INTO passengerflight(flightid,passengerid)
+       dbsql = """INSERT INTO passengerFlight(FlightID,PassengerID)
                    VALUES(%s,%s);"""
        parameters = (flightID,passengerID)
        cur.execute(dbsql,parameters)
@@ -360,8 +360,8 @@ def register():
 
 def CheckManager(staffID):#check if the staff is the manager or not
     cur = getCursor()
-    sql = ("""SELECT ismanager from staff
-                   WHERE staffid = %s;""")
+    sql = ("""SELECT IsManager from staff
+                   WHERE staffID = %s;""")
     parameter = (staffID,)
     cur.execute(sql,parameter)
     dbOutput = cur.fetchall()
@@ -389,14 +389,14 @@ def adminPassenger():
        print(lastname)
 
        cur = getCursor()
-       cur.execute("""SELECT lastname FROM passenger;""")#get all the lastname from database
+       cur.execute("""SELECT LastName FROM passenger;""")#get all the lastname from database
        dbOutput = cur.fetchall()
        lastname_list = [item for t in dbOutput for item in t]
 
        if lastname in lastname_list:
 
            cur = getCursor()
-           sql = ("""select * from passenger where lastname = %s;""") #display the passenger details with the lastname staff entered
+           sql = ("""select * from passenger where LastName = %s;""") #display the passenger details with the lastname staff entered
            parameter = (lastname,)
            cur.execute(sql,parameter)
            dbOutput = cur.fetchall()
@@ -405,7 +405,7 @@ def adminPassenger():
             staffID = request.args.get("staffID") #if staff entered a wrong/invalid value, just display all the passeger details
             cur = getCursor()
             cur.execute("""SELECT * FROM passenger
-                     order by lastname, firstname;""")        
+                     order by LastName, FirstName;""")        
             dbOutput = cur.fetchall()
             return render_template("adminPassenger.html", userSelect = dbOutput,staffID = staffID)
 
@@ -413,7 +413,7 @@ def adminPassenger():
        staffID = request.args.get("staffID") 
        cur = getCursor()  #display all the passeger details
        cur.execute("""SELECT * FROM passenger 
-                     order by lastname, firstname;""")        
+                     order by LastName, FirstName;""")        
        dbOutput = cur.fetchall()
        return render_template("adminPassenger.html", userSelect = dbOutput,staffID = staffID)
 
@@ -448,19 +448,19 @@ def adminDetails():             ##staff can get a specific passenger info in thi
     staffID = request.args.get("staffID")
     cur = getCursor()
     dbsql = ("""SELECT * FROM passenger
-                    where passengerid = %s;""")    #fetch the specific passenger info
+                    where passengerID = %s;""")    #fetch the specific passenger info
     parameter = (passengerID,)
     cur.execute(dbsql,parameter)
     dbOutput = cur.fetchall()
     
     cur2 = getCursor()
-    dbsql2 = ("""SELECT p.passengerid, p.firstname, p.lastname, f.flightid, f.flightnum, f.flightdate
+    dbsql2 = ("""SELECT p.PassengerID, p.FirstName, p.LastName, f.FlightID, f.FlightNum, f.FlightDate
                  FROM flight as f
-                 join passengerflight as pf
-                 on f.flightid = pf.flightid
+                 join passengerFlight as pf
+                 on f.FlightID = pf.FlightID
                  join passenger as p
-                 on pf.PassengerID = p.passengerid
-                 where p.passengerid = %s;""") #fetch all the booking under the specific passenger
+                 on pf.PassengerID = p.PassengerID
+                 where p.PassengerID = %s;""") #fetch all the booking under the specific passenger
     parameter2 = (passengerID,)
     cur2.execute(dbsql2,parameter2)
     dbOutput2 = cur2.fetchall()
@@ -479,78 +479,78 @@ def adminAdd():
 
 
         cur = getCursor()   #User selects departure airport. All available flights(not been cancelled and still have seat) from that airport are displayed for the selected date and 7 days after that date
-        dbsql = """SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+        dbsql = """SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.StatusDesc
                    FROM flight AS f
                    JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    JOIN airport AS a
                    ON r.DepCode = a.AirportCode  
                    JOIN airport as aa
-                   on r.arrcode = aa.AirportCode                 
+                   on r.ArrCode = aa.AirportCode                 
                    JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID                  
-                   join STATUS AS S
+                   join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s and f.FlightStatus != 'Cancelled' )
-                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s and f.FlightStatus != 'Cancelled')
-                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   where (r.DepCode = %s and f.FlightDate = %s and f.FlightDate <= %s and f.DepTime >= %s and f.FlightStatus != 'Cancelled' )
+                         or (r.DepCode = %s and f.FlightDate > %s and f.FlightDate <= %s and f.FlightStatus != 'Cancelled')
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.DepTime, a.AirportName, f.ArrTime  
                    having seatavailable  > 0                                 
-                   order by f.flightdate;"""
+                   order by f.FlightDate;"""
         parameters = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
         cur.execute(dbsql,parameters) 
         dbOutput = cur.fetchall()
         print(dbOutput)
 
         cur2=getCursor() #if have, fetch the flight that have NO SEAT !and display
-        dbsql2=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+        dbsql2=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.StatusDesc
                    FROM flight AS f
                    JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    JOIN airport AS a
                    ON r.DepCode = a.AirportCode  
                    JOIN airport as aa
-                   on r.arrcode = aa.AirportCode                 
+                   on r.ArrCode = aa.AirportCode                 
                    JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID                  
-                   join STATUS AS S
+                   join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s)
-                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s)
-                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   where (r.DepCode = %s and f.FlightDate = %s and f.FlightDate <= %s and f.DepTime >= %s)
+                         or (r.DepCode = %s and f.FlightDate > %s and f.FlightDate <= %s)
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.DepTime, a.AirportName, f.ArrTime  
                    having seatavailable  <= 0                                 
-                   order by f.flightdate; """)
+                   order by f.FlightDate; """)
         parameters2 = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
         cur2.execute(dbsql2,parameters2) 
         dbOutput2 = cur2.fetchall()
         print(dbOutput2)
 
         cur3=getCursor() #if have , fetch the flight that have been CANCELLED (although have seats)
-        dbsql3=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.statusdesc
+        dbsql3=("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime, ac.Seating - COUNT(pf.PassengerID) AS seatAvailable, f.FlightStatus, s.StatusDesc
                    FROM flight AS f
                    JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    JOIN airport AS a
                    ON r.DepCode = a.AirportCode 
                    JOIN airport as aa
-                   on r.arrcode = aa.AirportCode                  
+                   on r.ArrCode = aa.AirportCode                  
                    JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID                  
-                   join STATUS AS S
+                   join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where (r.DepCode = %s and f.flightdate = %s and flightdate <= %s and f.deptime >= %s and f.FlightStatus = 'Cancelled')
-                         or (r.DepCode = %s and f.flightdate > %s and flightdate <= %s and f.FlightStatus = 'Cancelled')
-                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.Deptime, a.AirportName, f.ArrTime  
+                   where (r.DepCode = %s and f.FlightDate = %s and f.FlightDate <= %s and f.DepTime >= %s and f.FlightStatus = 'Cancelled')
+                         or (r.DepCode = %s and f.FlightDate > %s and f.FlightDate <= %s and f.FlightStatus = 'Cancelled')
+                   GROUP BY f.FlightID, r.FlightNum, f.FlightDate, r.DepCode, f.DepTime, a.AirportName, f.ArrTime  
                    having seatavailable  > 0                                 
-                   order by f.flightdate;""")
+                   order by f.FlightDate;""")
         parameters3 = (userSelect, dateNow,date_7after,timeNow_hms,userSelect,dateNow,date_7after)
         cur3.execute(dbsql3,parameters3) 
         dbOutput3 = cur3.fetchall()
@@ -566,8 +566,8 @@ def adminAddSuc():
     flightID = request.args.get("flightID") 
 
     cur = getCursor()
-    dbsql = ("""select * from passengerflight
-                where flightid = %s and passengerid = %s;""")
+    dbsql = ("""select * from passengerFlight
+                where FlightID = %s and PassengerID = %s;""")
     parameters=(flightID,passengerID)
     cur.execute(dbsql,parameters)
     dbOutput = cur.fetchall()
@@ -576,7 +576,7 @@ def adminAddSuc():
     if len(dbOutput) == 0:
 
        cur = getCursor()
-       dbsql = """INSERT INTO passengerflight(flightid,passengerid)
+       dbsql = """INSERT INTO passengerFlight(FlightID,PassengerID)
                    VALUES(%s,%s);"""
        parameters = (flightID,passengerID)
        cur.execute(dbsql,parameters)
@@ -602,8 +602,8 @@ def adminEdit():
         
         cur = getCursor()  
         dbsql = """update passenger
-                   set firstname=%s,lastname=%s,emailaddress=%s,phonenumber=%s,passportnumber=%s,dateofbirth=%s
-                   where passengerid = %s;"""
+                   set FirstName=%s,LastName=%s,EmailAddress=%s,PhoneNumber=%s,PassportNumber=%s,DateOfBirth=%s
+                   where PassengerID = %s;"""
         parameters = (firstName,lastName,emailAddress,phoneNum,passportNum,dateBirth,passengerID)
         cur.execute(dbsql,parameters) 
         connection.commit()
@@ -614,9 +614,9 @@ def adminEdit():
         passengerID = request.args.get("passengerID")
         staffID = request.args.get("staffID")
         cur = getCursor() #fetch the details for this specific passenger
-        dbsql = ("""select firstname, lastname, emailaddress, phonenumber, passportnumber, dateofbirth, passengerid
+        dbsql = ("""select FirstName, LastName, EmailAddress, PhoneNumber, PassportNumber, DateOfBirth, PassengerID
                 from passenger
-                where passengerid = %s""")
+                where PassengerID = %s""")
         parameter = (passengerID,)
         cur.execute(dbsql,parameter)
         dbOutput = cur.fetchall()
@@ -645,8 +645,8 @@ def adminCancel():
     print(flightID)
     
     cur = getCursor() 
-    sql = ("""DELETE FROM passengerflight
-              where flightid = %s and passengerid = %s;""")
+    sql = ("""DELETE FROM passengerFlight
+              where FlightID = %s and PassengerID = %s;""")
     paremeters =(flightID,passengerID)
     cur.execute(sql,paremeters)
     connection.commit()
@@ -667,7 +667,7 @@ def adminFlight():
        print(depcode)
 
        cur = getCursor()
-       cur.execute("""SELECT depcode from route;""")#get all the dep-code from database
+       cur.execute("""SELECT DepCode from route;""")#get all the dep-code from database
        dbOutput = cur.fetchall()
        depCode_list = [item for t in dbOutput for item in t]
        
@@ -678,26 +678,26 @@ def adminFlight():
 
            date_7after = dateNow + timedelta(days=7) 
            cur = getCursor()
-           sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
+           sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
                    FROM flight AS f
                    LEFT JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    LEFT JOIN airport AS a
                    ON r.DepCode = a.AirportCode
                    LEFT JOIN airport AS aa
-                    ON r.arrCode = aa.AirportCode
+                    ON r.ArrCode = aa.AirportCode
                    LEFT JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    LEFT JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID
                    LEFT JOIN passenger AS p
                    ON pf.PassengerID = p.PassengerID
-                   left join STATUS AS S
+                   left join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where f.flightdate >= %s and f.flightdate <= %s and r.depcode = %s
+                   where f.FlightDate >= %s and f.FlightDate <= %s and r.DepCode = %s
                    GROUP BY f.FlightID, r.FlightNum, f.FlightDate, a.AirportCode, f.DepEstAct, aa.AirportName, f.ArrTime, ac.Seating
-                  order by f.FlightDate, f.deptime,a.Airportname;""")        
+                  order by f.FlightDate, f.DepTime,a.AirportName;""")        
            parameter = (dateNow,date_7after,depcode)
            cur.execute(sql,parameter)
            dbOutput = cur.fetchall()
@@ -710,26 +710,26 @@ def adminFlight():
            date_7after = dateNow + timedelta(days=7) 
 
            cur = getCursor()
-           sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
+           sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
                    FROM flight AS f
                    LEFT JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    LEFT JOIN airport AS a
                    ON r.DepCode = a.AirportCode
                    LEFT JOIN airport AS aa
-                    ON r.arrCode = aa.AirportCode
+                    ON r.ArrCode = aa.AirportCode
                    LEFT JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    LEFT JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID
                    LEFT JOIN passenger AS p
                    ON pf.PassengerID = p.PassengerID
-                   left join STATUS AS S
+                   left join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where f.flightdate >= %s and f.flightdate <= %s
+                   where f.FlightDate >= %s and f.FlightDate <= %s
                    GROUP BY f.FlightID, r.FlightNum, f.FlightDate, a.AirportCode, f.DepEstAct, aa.AirportName, f.ArrTime, ac.Seating
-                  order by f.FlightDate, f.deptime,a.Airportname;""")        
+                  order by f.FlightDate, f.DepTime,a.AirportName;""")        
            parameter = (dateNow,date_7after)
            cur.execute(sql,parameter)
            dbOutput = cur.fetchall()
@@ -742,26 +742,26 @@ def adminFlight():
        date_7after = dateNow + timedelta(days=7) 
 
        cur = getCursor()
-       sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
+       sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
                    FROM flight AS f
                    LEFT JOIN route AS r
                    ON f.FlightNum = r.FlightNum
                    LEFT JOIN airport AS a
                    ON r.DepCode = a.AirportCode
                    LEFT JOIN airport AS aa
-                    ON r.arrCode = aa.AirportCode
+                    ON r.ArrCode = aa.AirportCode
                    LEFT JOIN aircraft AS ac
                    ON f.Aircraft = ac.RegMark
                    LEFT JOIN passengerFlight AS pf
                    ON f.FlightID = pf.FlightID
                    LEFT JOIN passenger AS p
                    ON pf.PassengerID = p.PassengerID
-                   left join STATUS AS S
+                   left join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where f.flightdate >= %s and f.flightdate <= %s
+                   where f.FlightDate >= %s and f.FlightDate <= %s
                    GROUP BY f.FlightID, r.FlightNum, f.FlightDate, a.AirportCode, f.DepEstAct, aa.AirportName, f.ArrTime, ac.Seating
-                  order by f.FlightDate, f.deptime,a.Airportname;""")        
+                  order by f.FlightDate, f.DepTime,a.AirportName;""")        
        parameter = (dateNow,date_7after)
        cur.execute(sql,parameter)
        dbOutput = cur.fetchall()
@@ -795,16 +795,16 @@ def flightDetail():
            if status == 'Cancelled': #if the status is 'Cancelled' , change the value of arrEstAct and depEstAct to NULL
               cur = getCursor() 
               dbsql = """update flight
-                   set deptime=%s,arrtime=%s,duration=%s,depestact=%s, arrestact=%s, aircraft =%s,flightstatus=%s
-                   where flightid = %s;"""
+                   set DepTime=%s,ArrTime=%s,Duration=%s,DepEstAct=%s, ArrEstAct=%s, Aircraft =%s,FlightStatus=%s
+                   where FlightID = %s;"""
               parameters = (deptime,arrtime,duration,None,None,regMark,status,flightID)
               cur.execute(dbsql,parameters) 
               connection.commit()
            else:
               cur = getCursor() 
               dbsql = """update flight
-                   set deptime=%s,arrtime=%s,duration=%s,depestact=%s, arrestact=%s,aircraft =%s,flightstatus=%s
-                   where flightid = %s;"""
+                   set DepTime=%s,ArrTime=%s,Duration=%s,DepEstAct=%s, ArrEstAct=%s,Aircraft =%s,FlightStatus=%s
+                   where FlightID = %s;"""
               parameters = (deptime,arrtime,duration,deptime,arrtime,regMark,status,flightID)
               cur.execute(dbsql,parameters) 
               connection.commit()
@@ -819,16 +819,16 @@ def flightDetail():
             if status == 'Cancelled':
                 cur = getCursor()  
                 dbsql = """update flight
-                   set deptime=%s,arrtime=%s,duration=%s,depestact=%s, arrestact=%s,flightstatus=%s
-                   where flightid = %s;"""
+                   set DepTime=%s,ArrTime=%s,Duration=%s,DepEstAct=%s, ArrEstAct=%s,FlightStatus=%s
+                   where FlightID = %s;"""
                 parameters = (deptime,arrtime,duration,None,None,status,flightID)
                 cur.execute(dbsql,parameters) 
                 connection.commit()
             else:
                 cur = getCursor()  
                 dbsql = """update flight
-                   set deptime=%s,arrtime=%s,duration=%s,depestact=%s, arrestact=%s,flightstatus=%s
-                   where flightid = %s;"""
+                   set DepTime=%s,ArrTime=%s,Duration=%s,DepEstAct=%s, ArrEstAct=%s,FlightStatus=%s
+                   where FlightID = %s;"""
                 parameters = (deptime,arrtime,duration,deptime,arrtime,status,flightID)
                 cur.execute(dbsql,parameters) 
                 connection.commit()
@@ -839,13 +839,13 @@ def flightDetail():
        flightID = request.args.get("flightID")
        isManager = CheckManager(staffID)      
        cur3 = getCursor()
-       cur3.execute("""select regmark from aircraft;""") #fetch all the regmark for manager to choose
+       cur3.execute("""select RegMark from aircraft;""") #fetch all the regmark for manager to choose
        dbOutput3=cur3.fetchall()
        regMark = [item for t in dbOutput3 for item in t]
 
        cur = getCursor()   #fetch the details of this specific flight
-       sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.Airportname AS DepartAirport, 
-                   f.deptime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, 
+       sql = ("""SELECT DISTINCT f.FlightID, r.FlightNum, f.FlightDate, a.AirportName AS DepartAirport, 
+                   f.DepTime, aa.AirportName AS ArrivalAirpot, f.ArrTime,f.Aircraft, COUNT(p.PassengerID) as seatBooked, 
                    ac.Seating - COUNT(p.PassengerID) AS seatAvailable, f.FlightStatus
                    FROM flight AS f
                    LEFT JOIN route AS r
@@ -860,23 +860,23 @@ def flightDetail():
                    ON f.FlightID = pf.FlightID
                    LEFT JOIN passenger AS p
                    ON pf.PassengerID = p.PassengerID
-                   left join STATUS AS S
+                   left join status AS s
                    on f.FlightStatus = s.FlightStatus
-                   where f.flightid = %s
+                   where f.FlightID = %s
                    ;""")     
        parameter = (flightID,)   
        cur.execute(sql,parameter)
        dbOutput = cur.fetchall()
     
        cur2 = getCursor()  #fetch all the passenger under this flight
-       sql2 = ("""SELECT p.passengerid, p.firstname, p.lastname, p.emailaddress, p.phonenumber, p.passportnumber 
+       sql2 = ("""SELECT p.PassengerID, p.FirstName, p.LastName, p.EmailAddress, p.PhoneNumber, p.PassportNumber 
             from passenger as p
-            join passengerflight as pf
+            join passengerFlight as pf
             on pf.PassengerID = p.PassengerID
             join flight as f
-            on f.flightid = pf.FlightID
-            where f.flightid = %s
-            order by p.lastname, p.firstname;""")
+            on f.FlightID = pf.FlightID
+            where f.FlightID = %s
+            order by p.LastName, p.FirstName;""")
        parameter2 = (flightID,)
        cur2.execute(sql2,parameter2)
        dbOutput2 = cur2.fetchall()
@@ -905,7 +905,7 @@ def adminFlightAdd():
         aircraft = newFlight['aircraft']
         
         cur = getCursor()   #insert these values into database flight table
-        dbsql = """insert into flight(flightnum,weeknum,flightdate,deptime,arrtime,duration,depEstAct,arrEstAct,flightstatus,aircraft)
+        dbsql = """insert into flight(FlightNum,WeekNum,FlightDate,DepTime,ArrTime,Duration,DepEstAct,ArrEstAct,FlightStatus,Aircraft)
                    values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"""
         parameters = (flightnum,weeknum,flightdate,deptime,arrtime,duration,depEstAct,arrEstAct,flightstatus,aircraft)
         cur.execute(dbsql,parameters) 
@@ -916,14 +916,14 @@ def adminFlightAdd():
     else:
 
         cur = getCursor()
-        cur.execute("""select regmark from aircraft;""")#fetch all the regmark for user to choose
+        cur.execute("""select RegMark from aircraft;""")#fetch all the regmark for user to choose
         dbOutput=cur.fetchall()   
         regMark = [item for t in dbOutput for item in t] 
 
         print(regMark)
         
         cur2 = getCursor()
-        cur2.execute("""select distinct flightnum from flight;""")#fetch all the flightnum for choosing
+        cur2.execute("""select distinct FlightNum from flight;""")#fetch all the flightnum for choosing
         dbOutput2=cur2.fetchall()
         flightnum = [item for t in dbOutput2 for item in t]
 
