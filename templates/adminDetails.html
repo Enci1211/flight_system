@@ -1,71 +1,81 @@
-{% extends "home.html" %}
-{% block title %}Administrative system for staff {% endblock%}
-
-{% block content %}
+{% extends "home.html" %} {% block title %}Administrative system for staff {%
+endblock%} {% block content %}
 
 <h1>{{ success_edit }}</h1>
 <h1>passenger infomation:</h1>
 
 <table class="table table-striped">
-    <thead method='POST'>
-        <tr>
-            <th scope="col">passengerID</th>
-            <th scope="col">firstname</th>
-            <th scope="col">lastname</th>
-            <th scope="col">emailaddress</th>
-            <th scope="col">phonenumber</th>
-            <th scope="col">passportnumber</th>
-            <th scope="col">dateofbirth</th>
-            <th scope="col">loyaltytier</th>
-        </tr>
-    </thead>
+  <thead method="POST">
+    <tr>
+      <th scope="col">passengerID</th>
+      <th scope="col">firstname</th>
+      <th scope="col">lastname</th>
+      <th scope="col">emailaddress</th>
+      <th scope="col">phonenumber</th>
+      <th scope="col">passportnumber</th>
+      <th scope="col">dateofbirth</th>
+      <th scope="col">loyaltytier</th>
+    </tr>
+  </thead>
 
-    <tbody>
-        
-        {% for a in passenger %}
-        <tr>
-            <td><a href="/admin/passenger/edit?passengerID={{passengerID}}&staffID={{staffID}}">{{a[0]}}</a></td>
-            <td>{{a[1]}}</td>
-            <td>{{a[2]}}</td>
-            <td>{{a[3]}}</td>
-            <td>{{a[4]}}</td>
-            <td>{{a[5]}}</td>
-            <td>{{a[6]}}</td>
-            <td>{{a[7]}}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+  <tbody>
+    {% for a in passenger %}
+    <tr>
+      <td>
+        <a
+          href="/admin/passenger/edit?passengerID={{passengerID}}&staffID={{staffID}}"
+          >{{a[0]}}</a
+        >
+      </td>
+      <td>{{a[1]}}</td>
+      <td>{{a[2]}}</td>
+      <td>{{a[3]}}</td>
+      <td>{{a[4]}}</td>
+      <td>{{a[5]}}</td>
+      <td>{{a[6]}}</td>
+      <td>{{a[7]}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 
-<button><a href="/admin/passenger/add?passengerID={{passengerID}}">add a new booking!</a></button>
+<button>
+  <a href="/admin/passenger/add?passengerID={{passengerID}}"
+    >add a new booking!</a
+  >
+</button>
 
 <h1>All the booking for this passenger:</h1>
 <table class="table table-striped">
-    <thead method='POST'>
-        <tr>
-            <th scope="col">passengerID</th>
-            <th scope="col">firstname</th>
-            <th scope="col">lastname</th>
-            <th scope="col">flightid</th>
-            <th scope="col">flightnum</th>
-            <th scope="col">flightdate</th>
-        </tr>
-    </thead>
+  <thead method="POST">
+    <tr>
+      <th scope="col">passengerID</th>
+      <th scope="col">firstname</th>
+      <th scope="col">lastname</th>
+      <th scope="col">flightid</th>
+      <th scope="col">flightnum</th>
+      <th scope="col">flightdate</th>
+    </tr>
+  </thead>
 
-    <tbody>
-        
-        {% for a in passengerBooking %}
-        <tr>
-            <td>{{a[0]}}</td>
-            <td>{{a[1]}}</td>
-            <td>{{a[2]}}</td>
-            <td>{{a[3]}}</td>
-            <td>{{a[4]}}</td>
-            <td>{{a[5]}}</td>
-            <td><a href="/admin/passenger/cancel/?passengerID={{a[0]}}&staffID={{staffID}}&flightID={{a[3]}}">cancel</a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
+  <tbody>
+    {% for a in passengerBooking %}
+    <tr>
+      <td>{{a[0]}}</td>
+      <td>{{a[1]}}</td>
+      <td>{{a[2]}}</td>
+      <td>{{a[3]}}</td>
+      <td>{{a[4]}}</td>
+      <td>{{a[5]}}</td>
+      <td>
+        <a
+          href="/admin/passenger/cancel/?passengerID={{a[0]}}&staffID={{staffID}}&flight99ID={{a[3]}}"
+          >cancel</a
+        >
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 
 {% endblock %}

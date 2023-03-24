@@ -1,50 +1,90 @@
-{% extends "home.html" %}
-{% block title %} change the passenger info {% endblock%}
-
-{% block content %}
+{% extends "home.html" %} {% block title %} change the passenger info {%
+endblock%} {% block content %}
 <h1>{{ success_edit }}</h1>
 <form action="{{url_for('edit')}}" method="POST">
-    <div class="form-row">
-        <!---------fisrtName-->
+  <div class="form-row">
+    <!---------fisrtName-->
 
+    <input
+      type="hidden"
+      value="{{passengerID}}"
+      id="passengerID"
+      name="passengerID"
+    />
 
-        <input type="hidden" value="{{passengerID}}" id="passengerID" name="passengerID">
-
-        <!---------fisrtName-->
-        <div class="form-group col-md-6">
-            <label for="firstname">fistname is {{firstname}},change to</label>
-            <input type="text" class="form-control" id="firstname" name="firstname" required>
-        </div>
-        <!---------lastName-->
-        <div class="form-group col-md-6">
-            <label for="lastname">lastname is {{lastname}},change to</label>
-            <input type="text" class="form-control" id="lastname" name="lastname" required>
-        </div>
-        <!---------emailAddress-->
-        <div class="form-group col-md-6">
-            <label for="email">Email is {{emailaddress}}, change to</label>
-            <input type="email" class="form-control" id="email" placeholder="Email" name="email" required>
-        </div>
-        <!---------phoneNum-->
-        <div class="form-group col-md-6">
-            <label for="phonenum">phonen number is {{phonenumber}}, change to</label>
-            <input type="text" class="form-control" id="phonenum" placeholder="(nnn) nnn-nnnn" name="phonenum" required>
-        </div>
-        <!---------passportNum-->
-        <div class="form-group col-md-6">
-            <label for="passportnum">passport number is {{passportnumber}}, change to</label>
-            <input type="text" class="form-control" id="passportnum" name="passportnum" required>
-        </div>
-        <!---------dateBirth-->
-        <div class="form-group col-md-6">
-            <label for="datebirth">date of birth is {{dateofbirth}},change to</label>
-            <input type="date" class="form-control" id="datebirth" name="datebirth" required>
-        </div>
-
+    <!---------fisrtName-->
+    <div class="form-group col-md-6">
+      <label for="firstname">fistname is {{firstname}},change to</label>
+      <input
+        type="text"
+        class="form-control"
+        id="firstname"
+        name="firstname"
+        required
+      />
     </div>
+    <!---------lastName-->
+    <div class="form-group col-md-6">
+      <label for="lastname">lastname is {{lastname}},change to</label>
+      <input
+        type="text"
+        class="form-control"
+        id="lastname"
+        name="lastname"
+        required
+      />
+    </div>
+    <!---------emailAddress-->
+    <div class="form-group col-md-6">
+      <label for="email">Email is {{emailaddress}}, change to</label>
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        placeholder="Email"
+        name="email"
+        required
+      />
+    </div>
+    <!---------phoneNum-->
+    <div class="form-group col-md-6">
+      <label for="phonenum">phonen number is {{phonenumber}}, change to</label>
+      <input
+        type="text"
+        class="form-control"
+        id="phonenum"
+        placeholder="(nnn) nnn-nnnn"
+        name="phonenum"
+        required
+      />
+    </div>
+    <!---------passportNum-->
+    <div class="form-group col-md-6">
+      <label for="passportnum"
+        >passport number is {{passportnumber}}, change to</label
+      >
+      <input
+        type="text"
+        class="form-control"
+        id="passportnum"
+        name="passportnum"
+        required
+      />
+    </div>
+    <!---------dateBirth-->
+    <div class="form-group col-md-6">
+      <label for="datebirth">date of birth is {{dateofbirth}},change to</label>
+      <input
+        type="date"
+        class="form-control"
+        id="datebirth"
+        name="datebirth"
+        required
+      />
+    </div>
+  </div>
 
-    <input type="submit" class="btn btn-primary">
+  <input type="submit" class="btn btn-primary" />
 </form>
-
 
 {% endblock %}

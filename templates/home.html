@@ -1,128 +1,135 @@
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <title>{% block title %}assessment Air Whakatū flight booking {% endblock %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <title>
+      {% block title %}assessment Air Whakatū flight booking {% endblock %}
+    </title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+      integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+      crossorigin="anonymous"
+    />
 
     <style>
-        body * {
-            font-family: Verdana, Geneva, sans-serif;
-            font-size: 100%;
-            font-weight: inherit;
-            line-height: 1.2em;
-            list-style: none;
-            margin: 0px;
-            padding: 0px;
-            text-decoration: none;
-            vertical-align: baseline;
-        }
+      body * {
+        font-family: Verdana, Geneva, sans-serif;
+        font-size: 100%;
+        font-weight: inherit;
+        line-height: 1.2em;
+        list-style: none;
+        margin: 0px;
+        padding: 0px;
+        text-decoration: none;
+        vertical-align: baseline;
+      }
 
-        /* Body Styles */
-        body {
-            width: 95%;
-            min-width: 900px;
-            max-width: 1000px;
-            font-family: Verdana, Geneva, sans-serif;
-            font-weight: normal;
-            font-size: 16px;
-            margin: 0px auto;
-            position: relative;
-            border-left: 1px solid #3a5dff;
-            border-right: 1px solid #3a5dff;
-        }
+      /* Body Styles */
+      body {
+        width: 95%;
+        min-width: 900px;
+        font-family: Verdana, Geneva, sans-serif;
+        font-weight: normal;
+        font-size: 16px;
+        margin: 0px auto;
+        position: relative;
+        border-left: 1px solid #3a5dff;
+        border-right: 1px solid #3a5dff;
+      }
 
-        /* Header styles */
-        .header {
-            background-color: #3a5dff;
-        }
+      /* Header styles */
+      .header {
+        background-color: #3a5dff;
+      }
 
-        .heading {
-            color: white;
-            text-align: center;
-            font-size: 30px;
-            font-family: cursive;
-            padding: 30px;
-        }
+      .heading {
+        color: white;
+        text-align: center;
+        font-size: 30px;
+        font-family: cursive;
+        padding: 30px;
+      }
 
-        .logo {
-            width: 685px;
-            height: 104px;
-            display: block;
-            margin: 0 auto;
-            background-image: url(/static/logo_blue.jpg);
+      .logo {
+        width: 685px;
+        height: 104px;
+        display: block;
+        margin: 0 auto;
+        background-image: url(/static/logo_blue.jpg);
+      }
 
-        }
+      .logo:hover {
+        background: url(/static/logo_orange.jpg);
+      }
 
-        .logo:hover {
-            background: url(/static/logo_orange.jpg);
-        }
+      /*main styles*/
+      .main {
+        min-height: 80vh;
+      }
 
-        /*section styles */
-        section{
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 60%;
-        }
-        section a{
-            display: block;
-            height: 5%;
-            font-size: 20px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid currentColor ;
-        }
+      /*section styles */
+      section {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 60%;
+      }
+      section a {
+        display: block;
+        text-decoration: none;
+        padding: 2rem;
+        height: 5%;
+        font-size: 20px;
+        margin-bottom: 30px;
+        border-bottom: 1px solid currentColor;
+      }
 
+      /* footer styles */
 
+      footer {
+        border-top: 1px solid #3a5dff;
+        background-color: #a4b2f4;
+        clear: left;
+        margin-top: 20px;
+        padding: 10px 0px;
+      }
 
-        /* footer styles */
-
-        footer {
-            border-top: 1px solid #3a5dff;
-            background-color: #a4b2f4;
-            clear: left;
-            margin-top: 20px;
-            padding: 10px 0px;
-        }
-
-        footer address {
-            color: #3a5dff;
-            font-style: normal;
-            font-size: 0.8em;
-            text-align: center;
-        }
+      footer address {
+        color: #3a5dff;
+        font-style: normal;
+        font-size: 0.8em;
+        text-align: center;
+      }
     </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
-</head>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"
+      integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk"
+      crossorigin="anonymous"
+    ></script>
+  </head>
 
-<body>
+  <body>
     <header class="header">
-        <h1 class="heading">Flight booking request page requirements</h1>
-        <a href="#" class="logo"></a>
+      <h1 class="heading">Flight booking request page requirements</h1>
+      <a href="#" class="logo"></a>
     </header>
-
-    {% block content %}
-    <section>
+    <div class="main">
+      {% block content %}
+      <section>
         <a href="/screen/">Arrivals & Departures screen</a>
-        
-        <a href="/login/">Booking page</a>
-    </section>
-    {% endblock %}
-    
 
+        <a href="/login/">Booking page</a>
+      </section>
+      {% endblock %}
+    </div>
 
     <footer>
-        <address>
-            Contact details: 123 Cessna Lane, Tāhunanui, Nelson 7011 &bull;
-            fly@airwhakatu.co.nz &bull;
-            ph. 03 555 1234
-        </address>
+      <address>
+        Contact details: 123 Cessna Lane, Tāhunanui, Nelson 7011 &bull;
+        fly@airwhakatu.co.nz &bull; ph. 03 555 1234
+      </address>
     </footer>
-
-
-    
-</body>
-
+  </body>
 </html>
